@@ -1,0 +1,24 @@
+.explanation-tabs { display: flex; gap: 1.2rem; justify-content: center; margin-bottom: 2.5rem; }
+
+.tab-btn {
+    padding: 1rem 3rem; border-radius: 16px; border: 2px solid #e2e8f0;
+    background: white; font-weight: 900; cursor: pointer; transition: 0.3s;
+    color: var(--text-sub); font-size: 1.1rem;
+}
+
+.tab-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.explanation-content {
+    text-align: left;
+    min-height: 300px;
+    padding: 3rem 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.explanation-content h3 { font-size: 2.5rem; margin-bottom: 2rem; color: var(--text-main); }
+.explanation-content p { font-size: 1.4rem; line-height: 2; color: #334155; }

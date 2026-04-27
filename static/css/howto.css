@@ -1,0 +1,15 @@
+.how-to-content h2 { font-size: 2.8rem; margin-bottom: 2.5rem; }
+
+.how-to-list { list-style: none; text-align: left; max-width: 900px; margin: 0 auto; }
+
+.how-to-list li {
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 1.8rem;
+    padding: 1.2rem 2.5rem; background: white; border-radius: 24px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+    display: flex; align-items: center; gap: 1.2rem;
+    white-space: nowrap;
+}
+
+.how-to-list li b { color: var(--accent-blue); font-weight: 900; }
+
+.how-to-list li span { font-size: 2rem; }

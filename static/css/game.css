@@ -1,0 +1,56 @@
+.game-container {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: 2.5rem;
+    width: 100%; max-width: 1600px;
+    height: 88vh;
+}
+
+.controls {
+    background: white; border-radius: 36px; border: 1px solid var(--glass-border);
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+}
+
+.controls-scroll { padding: 2.5rem; overflow-y: auto; flex: 1; }
+
+.control-group { margin-bottom: 2.5rem; text-align: left; }
+.control-group h3 { font-size: 2rem; margin-bottom: 1.5rem; }
+.control-group label { font-size: 1.1rem; font-weight: 900; color: var(--text-main); margin-bottom: 1rem; display: block; }
+
+/* パレット */
+.color-panel { background: #f8fafc; padding: 1.2rem; border-radius: 24px; }
+.color-panel span { font-size: 0.8rem; font-weight: 800; color: var(--text-sub); display: block; margin: 1rem 0 0.5rem; }
+.color-panel span:first-child { margin-top: 0; }
+
+.color-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; }
+.color-btn { width: 38px; height: 38px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
+.color-btn.active { border-color: var(--accent-blue); transform: scale(1.15); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+
+/* スライダー */
+.slider-container { margin-bottom: 1.5rem; }
+.slider-label { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+.val-label { color: var(--accent-blue); }
+
+.slider-with-ticks { position: relative; width: 100%; padding: 0 10px; }
+.slider-with-ticks input[type="range"] {
+    width: 100%; height: 6px; border-radius: 3px; background: #e2e8f0; appearance: none; outline: none;
+}
+.slider-with-ticks input[type="range"]::-webkit-slider-thumb {
+    appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.ticks { display: flex; justify-content: space-between; width: 100%; margin-top: 6px; pointer-events: none; padding: 0 2px; }
+.ticks span { font-size: 9px; color: #cbd5e1; }
+
+.layout-options { display: flex; gap: 0.8rem; }
+.layout-btn {
+    flex: 1; padding: 1.3rem; border-radius: 16px; border: none; background: #f1f5f9; font-weight: 800; cursor: pointer; transition: 0.2s;
+}
+.layout-btn.active { background: var(--accent-blue); color: white; }
+
+.btn-evaluate {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: white; width: 100%; font-size: 1.5rem; font-weight: 900;
+}
+.btn-evaluate:hover { transform: scale(1.02); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
