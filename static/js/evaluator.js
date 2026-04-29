@@ -22,7 +22,18 @@ export function initRadarChart(scores, currentChart) {
             }]
         },
         options: {
-            scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 16, weight: 'bold' } } } },
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 40 },
+            scales: { 
+                r: { 
+                    min: 0, max: 100, 
+                    ticks: { display: false }, 
+                    grid: { color: '#e2e8f0' }, 
+                    angleLines: { color: '#e2e8f0' },
+                    pointLabels: { display: false } 
+                } 
+            },
             plugins: { legend: { display: false } }
         }
     });

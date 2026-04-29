@@ -1,51 +1,61 @@
-import { DEFAULTS, SOFT_COLORS, SIZE_MAP, TITLE_SIZE_MAP, CARD_TITLE_SIZE_MAP, LINE_MAP, PADDING_MAP, IMG_SIZE_MAP, LABEL_MAP } from './config.js';
+import { DEFAULTS, SOFT_COLORS, SIZE_MAP, TITLE_SIZE_MAP, CARD_TITLE_SIZE_MAP, LINE_MAP, PADDING_MAP, IMG_WIDTH_MAP, IMG_HEIGHT_MAP, LABEL_MAP } from './config.js';
 import { getContrastScore, initRadarChart, generateAIInsight } from './evaluator.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const state = {
         designParams: { ...DEFAULTS },
         radarChart: null,
-        texts: {
-            preview: {},
-            explanation: {}
-        },
         scores: { visibility: 0, layout: 0, cognitive: 0 }
     };
 
-    async function initAPI() {
-        document.getElementById('btn-evaluate').disabled = false;
-        document.getElementById('btn-evaluate').textContent = 'AI診断を開始！';
-        const badge = document.getElementById('model-status-container');
-        badge.classList.remove('loading');
-        badge.classList.add('ready');
-        document.getElementById('status-icon').textContent = '⚡';
-        document.getElementById('model-status').textContent = 'Gemma / Multi-Model 接続準備完了';
-    }
-
-    async function loadAllTexts() {
-        const fetchTxt = async (path) => {
-            const r = await fetch(`static/content/${path}.txt?v=${Date.now()}`);
-            return r.ok ? await r.text() : "";
-        };
-
-        const paths = [
-            'preview/title', 'preview/body', 
-            'preview/feature01_title', 'preview/feature01_body',
-            'preview/feature02_title', 'preview/feature02_body',
-            'explanation/tech_title', 'explanation/tech_content',
-            'explanation/design_title', 'explanation/design_content'
-        ];
-
-        for (const p of paths) {
-            const [folder, key] = p.split('/');
-            state.texts[folder][key] = (await fetchTxt(p)).trim();
+    // ページの読み込み
+    async function loadPages() {
+        const pages = ['title', 'how-to', 'game', 'evaluation', 'explanation'];
+        const container = document.getElementById('page-container');
+        
+        let combinedHtml = '';
+        for (const page of pages) {
+            const response = await fetch(`static/pages/${page}.html?v=${Date.now()}`);
+            if (response.ok) {
+                combinedHtml += await response.text();
+            }
         }
-        updatePreview();
+        container.innerHTML = combinedHtml;
     }
 
-    initAPI();
-    loadAllTexts();
-    setupColorOptions();
+    async function initApp() {
+        await loadPages();
+        
+        // ランダム設定で初期化
+        randomizeDesign();
+        
+        // UI初期化
+        initAPIStatus();
+        setupColorOptions();
+        setupSliders();
+        setupEventListeners();
+        
+        // 初期プレビューのスタイルを適用
+        updatePreview();
+        
+        // 最初のページを表示
+        navigateTo('page-title');
+    }
+
+    function initAPIStatus() {
+        const btnEval = document.getElementById('btn-evaluate');
+        if (btnEval) {
+            btnEval.disabled = false;
+            btnEval.textContent = 'AI診断を開始！';
+        }
+        const badge = document.getElementById('model-status-container');
+        if (badge) {
+            badge.classList.remove('loading');
+            badge.classList.add('ready');
+            document.getElementById('status-icon').textContent = '⚡';
+            document.getElementById('model-status').textContent = 'Gemma / Multi-Model 接続準備完了';
+        }
+    }
 
     function setupColorOptions() {
         const groups = [
@@ -79,121 +89,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function resetDesign() {
-        state.designParams = { ...DEFAULTS };
-        const sliders = [
-            { id: 'range-title-size', val: 3 },
-            { id: 'range-font-size', val: 3 },
-            { id: 'range-line-height', val: 3 },
-            { id: 'range-padding', val: 3 },
-            { id: 'range-img-size', val: 3 },
-            { id: 'range-card-title-size', val: 3 },
-            { id: 'range-card-text-size', val: 3 }
+    function setupSliders() {
+        const sliderDefs = [
+            { id: 'range-title-size', param: 'titleSize', map: TITLE_SIZE_MAP, label: 'val-titleSize' },
+            { id: 'range-font-size', param: 'fontSize', map: SIZE_MAP, label: 'val-fontSize' },
+            { id: 'range-line-height', param: 'lineHeight', map: LINE_MAP, label: 'val-lineHeight' },
+            { id: 'range-padding', param: 'padding', map: PADDING_MAP, label: 'val-padding' },
+            { id: 'range-img-width', param: 'imgWidth', map: IMG_WIDTH_MAP, label: 'val-imgWidth' },
+            { id: 'range-img-height', param: 'imgHeight', map: IMG_HEIGHT_MAP, label: 'val-imgHeight' },
+            { id: 'range-card-title-size', param: 'cardTitleSize', map: CARD_TITLE_SIZE_MAP, label: 'val-cardTitleSize' },
+            { id: 'range-card-text-size', param: 'cardFontSize', map: SIZE_MAP, label: 'val-cardFontSize' }
         ];
-        sliders.forEach(s => {
+
+        sliderDefs.forEach(s => {
             const el = document.getElementById(s.id);
-            if (el) el.value = s.val;
-        });
-        document.querySelectorAll('.val-label').forEach(el => el.textContent = '標準');
-        document.querySelectorAll('.layout-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.value === 'center');
-        });
-        setupColorOptions();
-        updatePreview();
-    }
-
-    function updatePreview() {
-        const p = state.designParams;
-        const t = state.texts.preview;
-        if (!t.title) return;
-
-        const previewEl = document.getElementById('web-preview');
-        previewEl.style.backgroundColor = p.bgColor;
-        previewEl.style.padding = p.padding;
-        previewEl.style.textAlign = p.layout;
-
-        const titleEl = document.getElementById('preview-title');
-        titleEl.textContent = t.title;
-        titleEl.style.color = p.titleColor;
-        titleEl.style.fontSize = p.titleSize;
-
-        const textEl = document.getElementById('preview-text');
-        textEl.textContent = t.body;
-        textEl.style.color = p.textColor;
-        textEl.style.fontSize = p.fontSize;
-        textEl.style.lineHeight = p.lineHeight;
-
-        const container = document.getElementById('preview-blocks-container');
-        container.innerHTML = '';
-        
-        const imgDiv = document.createElement('div');
-        imgDiv.className = 'preview-img-box';
-        imgDiv.textContent = "PRODUCT PHOTO";
-        imgDiv.style.height = p.imgSize;
-        container.appendChild(imgDiv);
-
-        container.appendChild(createCard(t.feature01_title, t.feature01_body, p));
-        container.appendChild(createCard(t.feature02_title, t.feature02_body, p));
-    }
-
-    function createCard(title, body, p) {
-        const div = document.createElement('div');
-        div.className = 'preview-card';
-        div.style.background = p.cardColor;
-        
-        const cardTitle = document.createElement('div');
-        cardTitle.textContent = title;
-        cardTitle.style.color = p.cardTitleColor;
-        cardTitle.style.fontSize = p.cardTitleSize;
-        cardTitle.style.fontWeight = '900';
-        cardTitle.style.marginBottom = '0.5rem';
-        
-        const cardText = document.createElement('div');
-        cardText.textContent = body;
-        cardText.style.color = p.cardTextColor;
-        cardText.style.fontSize = p.cardFontSize;
-        cardText.style.lineHeight = '1.5';
-        
-        div.appendChild(cardTitle);
-        div.appendChild(cardText);
-        return div;
-    }
-
-    const sliderDefs = [
-        { id: 'range-title-size', param: 'titleSize', map: TITLE_SIZE_MAP, label: 'val-titleSize' },
-        { id: 'range-font-size', param: 'fontSize', map: SIZE_MAP, label: 'val-fontSize' },
-        { id: 'range-line-height', param: 'lineHeight', map: LINE_MAP, label: 'val-lineHeight' },
-        { id: 'range-padding', param: 'padding', map: PADDING_MAP, label: 'val-padding' },
-        { id: 'range-img-size', param: 'imgSize', map: IMG_SIZE_MAP, label: 'val-imgSize' },
-        { id: 'range-card-title-size', param: 'cardTitleSize', map: CARD_TITLE_SIZE_MAP, label: 'val-cardTitleSize' },
-        { id: 'range-card-text-size', param: 'cardFontSize', map: SIZE_MAP, label: 'val-cardFontSize' }
-    ];
-
-    sliderDefs.forEach(s => {
-        const el = document.getElementById(s.id);
-        if (el) {
-            el.oninput = (e) => {
-                state.designParams[s.param] = s.map[e.target.value];
+            if (el) {
+                const initialVal = Object.keys(s.map).find(k => s.map[k] === state.designParams[s.param]) || 3;
+                el.value = initialVal;
                 const labelEl = document.getElementById(s.label);
-                if (labelEl) labelEl.textContent = LABEL_MAP[e.target.value];
+                if (labelEl) labelEl.textContent = LABEL_MAP[initialVal] || s.map[initialVal];
+
+                el.oninput = (e) => {
+                    state.designParams[s.param] = s.map[e.target.value];
+                    const labelEl = document.getElementById(s.label);
+                    if (labelEl) labelEl.textContent = LABEL_MAP[e.target.value] || s.map[e.target.value];
+                    updatePreview();
+                };
+            }
+        });
+    }
+
+    function setupEventListeners() {
+        // レイアウトボタン
+        document.querySelectorAll('.layout-btn').forEach(btn => {
+            if (btn.dataset.value === state.designParams.layout) btn.classList.add('active');
+            else btn.classList.remove('active');
+
+            btn.onclick = () => {
+                document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.designParams.layout = btn.dataset.value;
                 updatePreview();
             };
-        }
-    });
+        });
 
-    document.querySelectorAll('.layout-btn').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            state.designParams.layout = btn.dataset.value;
-            updatePreview();
+        // ナビゲーションボタンの安全な登録
+        const setClick = (id, fn) => {
+            const el = document.getElementById(id);
+            if (el) el.onclick = fn;
         };
-    });
 
-    document.getElementById('btn-evaluate').addEventListener('click', async () => {
+        setClick('btn-start', () => { resetDesign(); navigateTo('page-how-to'); });
+        setClick('btn-go-game', () => navigateTo('page-game'));
+        setClick('btn-back-to-title', () => navigateTo('page-title'));
+        setClick('btn-back-to-title-side', () => navigateTo('page-title'));
+        setClick('btn-back-to-title-from-eval', () => navigateTo('page-title'));
+        setClick('btn-back-to-eval', () => navigateTo('page-evaluation'));
+        setClick('btn-go-explanation', () => { navigateTo('page-explanation'); updateExp('design'); });
+        
+        // 評価ボタン
+        const btnEval = document.getElementById('btn-evaluate');
+        if (btnEval) btnEval.addEventListener('click', startEvaluation);
+
+        // 解説ページ用ナビゲーション
+        setupExpNav();
+    }
+
+    async function startEvaluation() {
+        // プレビューの内容を評価画面のミニプレビューにコピー
+        syncPreviewToEvaluation();
+        
         navigateTo('page-evaluation');
         
-        // 解析完了まで「解説を見る」ボタンを無効化
         const btnExp = document.getElementById('btn-go-explanation');
         btnExp.disabled = true;
         btnExp.textContent = "AI分析が完了するまでお待ちください...";
@@ -233,14 +200,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 card.querySelector('.comment').innerHTML = `
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <!-- AIの評価ポイント -->
                         <div>
                             <span class="eval-section-title bg-reasons">AIの評価ポイント</span>
                             <ul style="list-style: none; padding: 0; margin: 0;">
                                 ${reasonsHtml}
                             </ul>
                         </div>
-                        <!-- 改善のアドバイス -->
                         <div style="background: #f0fdf4; padding: 1rem; border-radius: 12px; border-left: 4px solid #10b981;">
                             <span class="eval-section-title bg-advice">プロの改善アドバイス</span>
                             <p style="margin: 0.5rem 0 0 0; color: #166534; font-weight: 700; line-height: 1.6;">
@@ -257,19 +222,174 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await Promise.all(evaluationPromises);
         
-        // 全分析完了後にボタンを有効化
         btnExp.disabled = false;
-        btnExp.textContent = "詳しく解説を見る";
+        btnExp.textContent = "用語・技術の解説";
 
         const finalTotal = Math.round((state.scores.visibility + state.scores.layout + state.scores.cognitive) / 3);
         document.getElementById('span-total-score').textContent = finalTotal;
-    });
+    }
 
-    document.getElementById('btn-start').onclick = () => { resetDesign(); navigateTo('page-how-to'); };
-    document.getElementById('btn-go-game').onclick = () => navigateTo('page-game');
-    document.getElementById('btn-back-to-title').onclick = () => navigateTo('page-title');
-    document.getElementById('btn-go-explanation').onclick = () => { navigateTo('page-explanation'); updateExp('tech'); };
-    document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = (e) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); e.currentTarget.classList.add('active'); updateExp(e.currentTarget.dataset.tab); }; });
-    function updateExp(k) { const t = state.texts.explanation; const d = { title: t[`${k}_title`], content: t[`${k}_content`] }; document.getElementById('exp-title').textContent = d.title; document.getElementById('exp-text').textContent = d.content; }
-    function navigateTo(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); setTimeout(() => { const pageEl = document.getElementById(id); if (pageEl) pageEl.scrollTop = 0; }, 50); }
+    function randomizeDesign() {
+        const rand = (map) => {
+            const keys = Object.keys(map);
+            return map[keys[Math.floor(Math.random() * keys.length)]];
+        };
+        const randColor = () => SOFT_COLORS[Math.floor(Math.random() * SOFT_COLORS.length)].value;
+
+        state.designParams = {
+            bgColor: randColor(),
+            textColor: randColor(),
+            titleColor: randColor(),
+            cardColor: randColor(),
+            cardTitleColor: randColor(),
+            cardTextColor: randColor(),
+            titleSize: rand(TITLE_SIZE_MAP),
+            fontSize: rand(SIZE_MAP),
+            lineHeight: rand(LINE_MAP),
+            imgWidth: rand(IMG_WIDTH_MAP),
+            imgHeight: rand(IMG_HEIGHT_MAP),
+            cardTitleSize: rand(CARD_TITLE_SIZE_MAP),
+            cardFontSize: rand(SIZE_MAP),
+            layout: ['left', 'center', 'right'][Math.floor(Math.random() * 3)],
+            padding: rand(PADDING_MAP)
+        };
+    }
+
+    function resetDesign() {
+        randomizeDesign();
+        setupColorOptions();
+        setupSliders();
+        
+        // レイアウトボタンの状態更新
+        document.querySelectorAll('.layout-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.value === state.designParams.layout);
+        });
+
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const p = state.designParams;
+
+        const previewEl = document.getElementById('web-preview');
+        if (!previewEl) return;
+        
+        applyDesignToElement(previewEl, p);
+    }
+
+    function applyDesignToElement(el, p) {
+        el.style.backgroundColor = p.bgColor;
+        el.style.padding = p.padding;
+        el.style.textAlign = p.layout;
+
+        const titleEl = el.querySelector('#preview-title') || el.querySelector('h2');
+        if (titleEl) {
+            titleEl.style.color = p.titleColor;
+            titleEl.style.fontSize = p.titleSize;
+        }
+
+        const textEl = el.querySelector('#preview-text') || el.querySelector('p');
+        if (textEl) {
+            textEl.style.color = p.textColor;
+            textEl.style.fontSize = p.fontSize;
+            textEl.style.lineHeight = p.lineHeight;
+        }
+
+        const imgBox = el.querySelector('.preview-img-box');
+        if (imgBox) {
+            imgBox.style.width = p.imgWidth;
+            imgBox.style.height = p.imgHeight;
+            imgBox.style.marginLeft = 'auto';
+            imgBox.style.marginRight = 'auto';
+        }
+
+        el.querySelectorAll('.preview-card').forEach(card => {
+            card.style.background = p.cardColor;
+            // カードの余白とレイアウトを全体設定に合わせる
+            card.style.padding = p.padding; 
+            card.style.textAlign = p.layout;
+
+            const cardTitle = card.querySelector('.card-title');
+            if (cardTitle) {
+                cardTitle.style.color = p.cardTitleColor;
+                cardTitle.style.fontSize = p.cardTitleSize;
+            }
+            const cardText = card.querySelector('.card-text');
+            if (cardText) {
+                cardText.style.color = p.cardTextColor;
+                cardText.style.fontSize = p.cardFontSize;
+            }
+        });
+    }
+
+    function syncPreviewToEvaluation() {
+        const source = document.getElementById('web-preview');
+        const target = document.getElementById('eval-web-preview');
+        if (!source || !target) return;
+
+        // 内容をコピー
+        target.innerHTML = source.innerHTML;
+        // スタイルをコピー
+        applyDesignToElement(target, state.designParams);
+    }
+
+    function updateExp(k) { 
+        const target = document.getElementById(`sec-${k}`);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // ボタンの状態更新
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === `sec-${k}`);
+        });
+    }
+
+    // 解説ページのナビゲーションボタン用イベント登録
+    function setupExpNav() {
+        const container = document.getElementById('scroll-container');
+        const sections = ['design', 'ai', 'prompt', 'hint'];
+        const navBtns = document.querySelectorAll('.nav-btn');
+
+        navBtns.forEach(btn => {
+            btn.onclick = (e) => {
+                const targetId = e.currentTarget.dataset.target.replace('sec-', '');
+                updateExp(targetId);
+            };
+        });
+
+        // スクロールに合わせた目次の更新
+        if (container) {
+            container.addEventListener('scroll', () => {
+                let current = "";
+                sections.forEach(id => {
+                    const section = document.getElementById(`sec-${id}`);
+                    if (section) {
+                        const top = section.offsetTop - container.offsetTop;
+                        if (container.scrollTop >= top - 100) {
+                            current = id;
+                        }
+                    }
+                });
+
+                navBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.target === `sec-${current}`);
+                });
+            });
+        }
+
+        // サイドバーのタイトル戻りボタン
+        setClick('btn-back-to-title-side', () => navigateTo('page-title'));
+    }
+
+    function navigateTo(id) { 
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
+        const target = document.getElementById(id);
+        if (target) {
+            target.classList.add('active'); 
+            setTimeout(() => { target.scrollTop = 0; }, 50); 
+        }
+    }
+
+    // アプリの起動
+    initApp();
 });

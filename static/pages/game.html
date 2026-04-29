@@ -1,0 +1,156 @@
+<section id="page-game" class="page">
+    <div class="game-container">
+        <aside class="controls">
+            <div class="controls-scroll">
+                <div class="control-group">
+                    <h3>🎨 デザイン設定</h3>
+                    <label>全体の配色パレット</label>
+                    <div class="color-panel">
+                        <span>背景の色</span>
+                        <div class="color-options" id="options-bg" data-param="bgColor"></div>
+                        <span>本文の文字色</span>
+                        <div class="color-options" id="options-text" data-param="textColor"></div>
+                        <span>タイトルの文字色</span>
+                        <div class="color-options" id="options-title-color" data-param="titleColor"></div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>タイトルの大きさ</label>
+                    <div class="slider-container">
+                        <div class="slider-label"><span class="val-label" id="val-titleSize">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-title-size" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>本文の大きさ・行間</label>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>サイズ:</span><span class="val-label"
+                                id="val-fontSize">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-font-size" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>行間:</span><span class="val-label"
+                                id="val-lineHeight">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-line-height" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>カード (FEATURE) の設定</label>
+                    <div class="color-panel">
+                        <span>カード背景色</span>
+                        <div class="color-options" id="options-card-color" data-param="cardColor"></div>
+                        <span>カード見出し色</span>
+                        <div class="color-options" id="options-card-title-color" data-param="cardTitleColor">
+                        </div>
+                        <span>カード本文色</span>
+                        <div class="color-options" id="options-card-text-color" data-param="cardTextColor">
+                        </div>
+                    </div>
+                    <div class="slider-container" style="margin-top: 15px;">
+                        <div class="slider-label"><span>見出しサイズ:</span><span class="val-label"
+                                id="val-cardTitleSize">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-card-title-size" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>本文サイズ:</span><span class="val-label"
+                                id="val-cardFontSize">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-card-text-size" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>画像（PRODUCT PHOTO）の設定</label>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>幅</span> <span id="val-imgWidth" class="val-label">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-img-width" min="1" max="5" step="1" value="5">
+                            <div class="ticks"><span>30%</span><span>50%</span><span>70%</span><span>90%</span><span>100%</span></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>高さ</span> <span id="val-imgHeight" class="val-label">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-img-height" min="1" max="5" step="1" value="3">
+                            <div class="ticks"><span>100</span><span>200</span><span>300</span><span>450</span><span>600</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>レイアウト・余白</label>
+                    <div class="layout-options" data-param="layout" style="margin-bottom: 1.5rem;">
+                        <button class="layout-btn" data-value="left">左寄せ</button>
+                        <button class="layout-btn active" data-value="center">中央</button>
+                        <button class="layout-btn" data-value="right">右寄せ</button>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label"><span>画面のゆとり:</span><span class="val-label"
+                                id="val-padding">標準</span></div>
+                        <div class="slider-with-ticks">
+                            <input type="range" id="range-padding" min="1" max="5" step="1" value="3">
+                            <div class="ticks">
+                                <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 1.5rem 2.5rem 2.5rem; background: white; border-top: 1px solid #f1f5f9;">
+                <button id="btn-evaluate" class="btn-evaluate" disabled>API接続を確認中...</button>
+            </div>
+        </aside>
+
+        <main class="preview-area">
+            <div id="web-preview" class="web-preview">
+                <header>
+                    <h2 id="preview-title">CREATIVE DESIGN</h2>
+                </header>
+                <article>
+                    <p id="preview-text">デザインの力で、情報を価値に変える。私たちは認知科学に基づいた設計で、最高のUXを提供します。</p>
+                    <div id="preview-blocks-container">
+                        <!-- 生成したヒーロー画像を表示 -->
+                        <div class="preview-img-box">
+                            <img src="static/img/hero.png" alt="Cognitive Design" class="cognitive-hero">
+                        </div>
+                        <div class="preview-card">
+                            <div class="card-title">FEATURE 01: 直感的な操作感</div>
+                            <div class="card-text">誰でも迷わず使えるUI。それは、脳の仕組みを理解することから始まります。</div>
+                        </div>
+                        <div class="preview-card">
+                            <div class="card-title">FEATURE 02: 科学的アプローチ</div>
+                            <div class="card-text">色彩心理学とレイアウト理論を融合。美しさと機能性を両立させます。</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </main>
+    </div>
+</section>

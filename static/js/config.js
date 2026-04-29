@@ -5,14 +5,15 @@ export const DEFAULTS = {
     cardColor: '#f1f5f9',
     cardTitleColor: '#0f172a',
     cardTextColor: '#475569',
-    titleSize: '48px',   // TITLE_SIZE_MAP[3]
-    fontSize: '20px',    // SIZE_MAP[3]
-    lineHeight: '1.7',  // LINE_MAP[3]
-    imgSize: '180px',    // IMG_SIZE_MAP[3]
-    cardTitleSize: '24px', // CARD_TITLE_SIZE_MAP[3]
-    cardFontSize: '20px',  // SIZE_MAP[3]
+    titleSize: '48px',
+    fontSize: '20px',
+    lineHeight: '1.7',
+    imgWidth: '100%',     // IMG_WIDTH_MAP[5]
+    imgHeight: '300px',    // IMG_HEIGHT_MAP[3]
+    cardTitleSize: '24px',
+    cardFontSize: '20px',
     layout: 'center',
-    padding: '60px'     // PADDING_MAP[3]
+    padding: '60px'
 };
 
 export const SOFT_COLORS = [
@@ -27,5 +28,6 @@ export const TITLE_SIZE_MAP = { "1": "24px", "2": "32px", "3": "48px", "4": "64p
 export const CARD_TITLE_SIZE_MAP = { "1": "16px", "2": "20px", "3": "24px", "4": "28px", "5": "36px" };
 export const LINE_MAP = { "1": "1.2", "2": "1.4", "3": "1.7", "4": "2.1", "5": "2.6" };
 export const PADDING_MAP = { "1": "15px", "2": "30px", "3": "60px", "4": "100px", "5": "150px" };
-export const IMG_SIZE_MAP = { "1": "80px", "2": "120px", "3": "180px", "4": "280px", "5": "400px" };
+export const IMG_WIDTH_MAP = { "1": "30%", "2": "50%", "3": "70%", "4": "90%", "5": "100%" };
+export const IMG_HEIGHT_MAP = { "1": "100px", "2": "200px", "3": "300px", "4": "450px", "5": "600px" };
 export const LABEL_MAP = { "1": "極小", "2": "小", "3": "標準", "4": "大", "5": "最大" };

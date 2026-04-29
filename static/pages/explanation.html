@@ -1,0 +1,145 @@
+<section id="page-explanation" class="page">
+    <div class="explanation-layout">
+        <!-- 左側：ナビゲーションサイドバー -->
+        <aside class="explanation-sidebar">
+            <div class="sidebar-inner">
+                <h3 class="sidebar-title">目次</h3>
+                <nav class="exp-nav">
+                    <button class="nav-btn active" data-target="sec-design">
+                        <span class="nav-icon">🎨</span> デザインの科学
+                    </button>
+                    <button class="nav-btn" data-target="sec-ai">
+                        <span class="nav-icon">🤖</span> AI技術とLLM
+                    </button>
+                    <button class="nav-btn" data-target="sec-prompt">
+                        <span class="nav-icon">✍️</span> プロンプトの裏側
+                    </button>
+                    <button class="nav-btn" data-target="sec-hint">
+                        <span class="nav-icon">💡</span> 攻略のヒント
+                    </button>
+                </nav>
+                <div class="sidebar-footer">
+                    <button id="btn-back-to-title-side" class="btn-black-sm">タイトルに戻る</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右側：メインコンテンツ -->
+        <main class="explanation-main">
+            <div id="scroll-container" class="content-glass scroll-content">
+                <header class="exp-header">
+                    <h2 class="eval-title">用語・技術の解説</h2>
+                    <p class="exp-lead">本ゲームで採用されているデザイン理論とAIテクノロジーの全貌を解説します。</p>
+                </header>
+
+                <!-- セクション1: デザインの科学 -->
+                <section id="sec-design" class="exp-section-block">
+                    <h3 class="exp-h3">デザインの認知科学的アプローチ</h3>
+                    <p class="exp-text">本ゲームで AI が評価している指標は、人間の『知』の働きを情報処理の観点から解明する「認知科学」に基づいています。</p>
+                    
+                    <div class="exp-item-full">
+                        <h4>視認性と補色の関係</h4>
+                        <p>デザインにおいて色は「情報の伝達」を助ける強力なツールです。<br>
+                        同系色でまとめれば画面に統一感と落ち着きが生まれますが、一方で重要な要素を目立たせるには「補色（色相環で反対側に位置する色）」を効果的に使う必要があります。<br>
+                        補色同士は互いの色を引き立て合い、高いコントラストを生むため、視認性を劇的に向上させることができます。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>余白（ホワイトスペース）</h4>
+                        <p>余白は単なる「空き地」ではなく、情報をグループ化するための境界線です。<br>
+                        適切な余白を設けることで、画面上の要素が整理され、ユーザーは迷うことなく情報をスキャンできます。<br>
+                        余白が不足すると情報は圧迫感を与え、逆に多すぎると情報の繋がりが失われてしまいます。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>視覚的階層 (Visual Hierarchy)</h4>
+                        <p>これは「情報の優先順位」を視覚的に表現する手法です。<br>
+                        大きなタイトルから順に視線を誘導することで、ユーザーはサイトの内容をストレスなく、かつ正しい順番で理解することができます。<br>
+                        サイズや色の強弱を用いて、脳が最初に受け取るべき情報をコントロールします。</p>
+                    </div>
+                </section>
+
+                <hr class="exp-divider">
+
+                <!-- セクション2: AI技術とLLM -->
+                <section id="sec-ai" class="exp-section-block">
+                    <h3 class="exp-h3">LLMによるデザイン分析</h3>
+                    <p class="exp-text">本ゲームには、Google から提供されている Gemini API を通じて、Gemma というモデルを使用しています。</p>
+                    
+                    <div class="exp-item-full">
+                        <h4>LLMとは何か</h4>
+                        <p>LLM（大規模言語モデル）は、インターネット上の膨大なデータを学習したAIです。<br>
+                        人間のような自然な言葉を生成したり、複雑な状況を論理的に判断したりすることが可能です。<br>
+                        代表的なものに OpenAIのChatGPT や GoogleのGemini などがあります。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>APIとは何か（Gemini API）</h4>
+                        <p>API（Application Programming Interface）とは、ソフトウェア同士が連携するための接続口や規約のことです。<br>
+                        本ゲームでは、Googleが提供するLLMを利用するための「Gemini API」という窓口を通じて、AIとの通信を行っています。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>Gemmaとは</h4>
+                        <p>Gemmaは、Googleが提供するオープンなLLMモデルです。<br>
+                        Geminiと同じテクノロジーを基盤に構築されており、軽量ながら非常に高い知能を持っています。<br>
+                        商用利用も可能なオープンモデルとして、AIをより自由に活用するため2024年2月21日に公開されました。</p>
+                    </div>
+                </section>
+
+                <hr class="exp-divider">
+
+                <!-- セクション3: プロンプトの裏側 -->
+                <section id="sec-prompt" class="exp-section-block">
+                    <h3 class="exp-h3">プロンプトエンジニアリングの仕組み</h3>
+                    <p class="exp-text">LLMに対して専門家としての役割を定義することで、適切に評価できるようにしています。
+                    <br>また、各視点ごとに異なるプロンプトを用いることで「個性」を活かしたアドバイスが生成されます。</p>
+                    
+                    <div class="exp-item-full">
+                        <h4>視認性分析</h4>
+                        <p>視覚デザインとアクセシビリティの専門家として、文字の可読性を最優先に評価します。<br>
+                        背景色と文字色の対比が、目の負担にならず瞬時に読み取れる状態かどうかを、色の理論に基づいて採点します。<br>
+                        色が背景に溶け込んでいないか、極端な配色でストレスを与えていないかが基準となります。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>構成分析</h4>
+                        <p>UIレイアウトの専門家として、画面全体のバランスを評価します。<br>
+                        余白が十分に確保されているか、要素の配置が美しく整理されているかを分析します。<br>
+                        情報の優先順位が分かりやすく、視線が迷うことなく誘導される構成になっているかを基準として判定します。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>認知負荷分析</h4>
+                        <p>認知心理学の専門家として、ユーザーの読み取りコストを評価します。<br>
+                        文字のサイズが適切で、行間も十分に確保されているか、集中力を削ぐことなく内容が一瞬で頭に入ってくるかを分析します。<br>
+                        情報の密度が高すぎて読み飛ばしたくなるようなストレスがないかを基準とします。</p>
+                    </div>
+                </section>
+
+                <hr class="exp-divider">
+
+                <!-- セクション4: 攻略のヒント -->
+                <section id="sec-hint" class="exp-section-block">
+                    <h3 class="exp-h3">攻略のヒント</h3>
+                    <p class="exp-text">AIから高評価を得るためのポイントをまとめました。</p>
+                    
+                    <div class="exp-item-full">
+                        <h4>1. 配色をそろえる</h4>
+                        <p>背景色、カード色、文字色に統一感を持たせましょう。<br>
+                        色が多すぎると情報の優先順位が分散し、AIは「整理されていない」と判断しやすくなります。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>2. 文字の可読性を最優先にする</h4>
+                        <p>どれだけ美しくても読めなければ得点は低くなります。<br>
+                        コントラストをはっきりさせ、文字サイズは「標準」以上に設定するのが高得点の近道です。</p>
+                    </div>
+                    <div class="exp-item-full">
+                        <h4>3. 画像の縦横比に注意する</h4>
+                        <p>元の画像は 1:1 の正方形です。<br>
+                        スライダーを極端に動かして画像が歪むと、視覚的ノイズとしてマイナス評価されるため、比率を意識しましょう。</p>
+                    </div>
+                </section>
+
+                <div class="exp-footer-actions">
+                    <button id="btn-back-to-eval" class="btn-secondary">分析レポートに戻る</button>
+                    <button id="btn-back-to-title" class="btn-primary">タイトルに戻る</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>

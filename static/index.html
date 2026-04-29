@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>見やすいWebページを作ろう | Gemma 3 API版</title>
 
-    <link rel="stylesheet" href="static/css/base.css">
-    <link rel="stylesheet" href="static/css/title.css">
-    <link rel="stylesheet" href="static/css/howto.css">
-    <link rel="stylesheet" href="static/css/game.css">
-    <link rel="stylesheet" href="static/css/preview.css">
-    <link rel="stylesheet" href="static/css/evaluation.css">
-    <link rel="stylesheet" href="static/css/explanation.css">
+    <link rel="stylesheet" href="static/css/base.css?v=3">
+    <link rel="stylesheet" href="static/css/title.css?v=3">
+    <link rel="stylesheet" href="static/css/howto.css?v=3">
+    <link rel="stylesheet" href="static/css/game.css?v=3">
+    <link rel="stylesheet" href="static/css/preview.css?v=3">
+    <link rel="stylesheet" href="static/css/evaluation.css?v=3">
+    <link rel="stylesheet" href="static/css/explanation.css?v=3">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,246 +21,17 @@
         rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- API版ではTransformers.jsは不要 -->
 </head>
 
 <body>
     <div id="app">
-        <!-- ページ：タイトル -->
-        <section id="page-title" class="page active">
-            <div class="content-glass">
-                <h1 class="one-line-title">見やすいWebページを作ろう</h1>
-                <p class="subtitle" style="font-size: 1.5rem; margin-bottom: 2rem; color: #475569;">Gemma 3
-                    があなたのデザインを分析する体験型ゲーム</p>
-                <div class="visual-placeholder">
-                    <div class="blob"></div>
-                </div>
-                <div class="center-btn-wrapper">
-                    <button id="btn-start" class="btn-primary">スタート！</button>
-                </div>
-                <div id="model-status-container" class="status-badge">
-                    <span id="status-icon">⏳</span> <span id="model-status">API接続を確認中...</span>
-                </div>
+        <!-- 各ページ（section）はstatic/pages/*.htmlから動的に読み込まれます -->
+        <div id="page-container">
+            <div class="loading-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px;">
+                <div class="loading-spinner"></div>
+                <p>ページを読み込んでいます...</p>
             </div>
-        </section>
-
-        <!-- ページ：操作説明 -->
-        <section id="page-how-to" class="page">
-            <div class="content-glass">
-                <div class="how-to-content">
-                    <h2>遊び方</h2>
-                    <ul class="how-to-list">
-                        <li><span>🎨</span> <b>デザイン設定</b>：左側のパネルで色や文字の大きさを自由に調整。</li>
-                        <li><span>👀</span> <b>リアルタイム反映</b>：右側のプレビューが即座に変化します。</li>
-                        <li><span>✨</span> <b>AI分析</b>：LLMが日本語であなたのデザインを採点。</li>
-                    </ul>
-                </div>
-                <div class="center-btn-wrapper">
-                    <button id="btn-go-game" class="btn-primary">OK、わかった！</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ページ：ゲーム画面 -->
-        <section id="page-game" class="page">
-            <div class="game-container">
-                <aside class="controls">
-                    <div class="controls-scroll">
-                        <div class="control-group">
-                            <h3>🎨 デザイン設定</h3>
-                            <label>全体の配色パレット</label>
-                            <div class="color-panel">
-                                <span>背景の色</span>
-                                <div class="color-options" id="options-bg" data-param="bgColor"></div>
-                                <span>本文の文字色</span>
-                                <div class="color-options" id="options-text" data-param="textColor"></div>
-                                <span>タイトルの文字色</span>
-                                <div class="color-options" id="options-title-color" data-param="titleColor"></div>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label>タイトルの大きさ</label>
-                            <div class="slider-container">
-                                <div class="slider-label"><span class="val-label" id="val-titleSize">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-title-size" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label>本文の大きさ・行間</label>
-                            <div class="slider-container">
-                                <div class="slider-label"><span>サイズ:</span><span class="val-label"
-                                        id="val-fontSize">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-font-size" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label"><span>行間:</span><span class="val-label"
-                                        id="val-lineHeight">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-line-height" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label>カード (FEATURE) の設定</label>
-                            <div class="color-panel">
-                                <span>カード背景色</span>
-                                <div class="color-options" id="options-card-color" data-param="cardColor"></div>
-                                <span>カード見出し色</span>
-                                <div class="color-options" id="options-card-title-color" data-param="cardTitleColor">
-                                </div>
-                                <span>カード本文色</span>
-                                <div class="color-options" id="options-card-text-color" data-param="cardTextColor">
-                                </div>
-                            </div>
-                            <div class="slider-container" style="margin-top: 15px;">
-                                <div class="slider-label"><span>見出しサイズ:</span><span class="val-label"
-                                        id="val-cardTitleSize">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-card-title-size" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label"><span>本文サイズ:</span><span class="val-label"
-                                        id="val-cardFontSize">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-card-text-size" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label>画像の大きさ</label>
-                            <div class="slider-container">
-                                <div class="slider-label"><span class="val-label" id="val-imgSize">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-img-size" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="control-group">
-                            <label>レイアウト・余白</label>
-                            <div class="layout-options" data-param="layout" style="margin-bottom: 1.5rem;">
-                                <button class="layout-btn" data-value="left">左寄せ</button>
-                                <button class="layout-btn active" data-value="center">中央</button>
-                                <button class="layout-btn" data-value="right">右寄せ</button>
-                            </div>
-                            <div class="slider-container">
-                                <div class="slider-label"><span>画面のゆとり:</span><span class="val-label"
-                                        id="val-padding">標準</span></div>
-                                <div class="slider-with-ticks">
-                                    <input type="range" id="range-padding" min="1" max="5" step="1" value="3">
-                                    <div class="ticks">
-                                        <span>●</span><span>●</span><span>●</span><span>●</span><span>●</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="padding: 1.5rem 2.5rem 2.5rem; background: white; border-top: 1px solid #f1f5f9;">
-                        <button id="btn-evaluate" class="btn-evaluate" disabled>API接続を確認中...</button>
-                    </div>
-                </aside>
-
-                <main class="preview-area">
-                    <div id="web-preview" class="web-preview">
-                        <header>
-                            <h2 id="preview-title">SITE TITLE</h2>
-                        </header>
-                        <article>
-                            <p id="preview-text">BODY TEXT</p>
-                            <div id="preview-blocks-container"></div>
-                        </article>
-                    </div>
-                </main>
-            </div>
-        </section>
-
-        <!-- ページ：評価画面 -->
-        <section id="page-evaluation" class="page">
-            <div class="content-glass large-eval">
-                <h2 class="eval-title">AI分析レポート</h2>
-
-                <div class="chart-container">
-                    <canvas id="radarChart"></canvas>
-                </div>
-
-                <div class="ai-results-row">
-                    <div id="ai-visibility" class="ai-card-v2 border-soft-red">
-                        <div class="ai-header-v2 bg-soft-red">視認性分析</div>
-                        <div class="rank-box">
-                            <div class="rank">?</div>
-                        </div>
-                        <p class="comment">分析中...</p>
-                    </div>
-                    <div id="ai-layout" class="ai-card-v2 border-soft-blue">
-                        <div class="ai-header-v2 bg-soft-blue">構成分析</div>
-                        <div class="rank-box">
-                            <div class="rank">?</div>
-                        </div>
-                        <p class="comment">分析中...</p>
-                    </div>
-                    <div id="ai-cognitive" class="ai-card-v2 border-soft-green">
-                        <div class="ai-header-v2 bg-soft-green">認知負荷</div>
-                        <div class="rank-box">
-                            <div class="rank">?</div>
-                        </div>
-                        <p class="comment">分析中...</p>
-                    </div>
-                </div>
-
-                <div class="total-score-box">
-                    <div class="total-label">総合デザインスコア</div>
-                    <div class="total-value" id="span-total-score">--</div>
-                </div>
-
-                <div class="center-btn-wrapper">
-                    <button id="btn-go-explanation" class="btn-primary">詳しく解説を見る</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ページ：解説 -->
-        <section id="page-explanation" class="page">
-            <div class="content-glass">
-                <div class="explanation-tabs">
-                    <button class="tab-btn active" data-tab="tech">AI技術</button>
-                    <button class="tab-btn" data-tab="design">デザインの科学</button>
-                </div>
-                <div class="explanation-content">
-                    <h3 id="exp-title"></h3>
-                    <p id="exp-text"></p>
-                </div>
-                <div class="center-btn-wrapper">
-                    <button id="btn-back-to-title" class="btn-secondary">タイトルに戻る</button>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
 
     <script type="module" src="static/js/app.js"></script>

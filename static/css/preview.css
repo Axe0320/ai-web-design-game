@@ -5,7 +5,13 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    min-height: 85vh;
+    height: 85vh;
+    overflow-y: auto; /* 縦スクロールを有効化 */
+    scrollbar-width: none; /* Firefox用：スクロールバーを隠す */
+}
+
+.preview-area::-webkit-scrollbar {
+    display: none; /* Chrome用：スクロールバーを隠す */
 }
 
 .web-preview {
@@ -16,6 +22,7 @@
     border-radius: 32px;
     box-shadow: 0 40px 80px rgba(0,0,0,0.06);
     transition: all 0.3s ease;
+    flex-shrink: 0; /* 潰れないように固定 */
 }
 
 .preview-img-box {
@@ -26,15 +33,35 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
-    color: #94a3b8;
+    overflow: hidden;
     border: 2px dashed #cbd5e1;
 }
 
+.cognitive-hero {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.cognitive-hero:hover {
+    transform: scale(1.05);
+}
+
 .preview-card {
-    padding: 1.5rem;
+    padding: 2.5rem;
     border-radius: 24px;
     margin-top: 1.5rem;
     border: 1px solid rgba(0,0,0,0.05);
     transition: background 0.3s ease;
+    text-align: left;
+}
+
+.card-title {
+    font-weight: 900;
+    margin-bottom: 0.8rem;
+}
+
+.card-text {
+    line-height: 1.6;
 }

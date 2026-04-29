@@ -1,0 +1,157 @@
+<style>
+    /* 外部CSSのキャッシュ問題を回避するためのインラインスタイル */
+    .eval-preview-wrapper {
+        margin: 3rem auto;
+        width: 100%;
+        max-width: 950px;
+    }
+
+    .eval-preview-container {
+        margin-top: 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 40px !important;
+        padding: 3rem !important;
+        max-height: 500px !important;
+        overflow-y: auto !important;
+        width: 100% !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .eval-preview-label {
+        font-size: 32px !important;
+        font-weight: 900 !important;
+        color: #0f172a !important;
+        text-align: center !important;
+        display: block !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .chart-label-wrapper {
+        margin-bottom: 2rem;
+    }
+
+    .mini-preview {
+        width: 100% !important;
+        max-width: 800px !important;
+        margin: 0 auto !important;
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
+
+    /* チャートコンテナの強化 */
+    .chart-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 4rem auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .radar-wrapper {
+        position: relative;
+        width: 500px; /* チャート自体のサイズ */
+        height: 500px;
+        margin: 0 auto;
+    }
+    #radarChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .radar-label {
+        position: absolute;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1e293b;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+    }
+    /* 500x500のCanvasに対する頂点の位置調整 */
+    .label-top { 
+        top: 0px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+    }
+    .label-bottom-right { 
+        bottom: 120px; 
+        right: 20px; 
+    }
+    .label-bottom-left { 
+        bottom: 120px; 
+        left: -10px; 
+    }
+
+    /* デザイン・バランス（旧分析結果）のスタイル */
+    .chart-label {
+        font-size: 32px !important;
+        font-weight: 900 !important;
+        color: #0f172a !important;
+        text-align: center !important;
+        display: block !important;
+        margin-bottom: 2.5rem !important;
+    }
+</style>
+<section id="page-evaluation" class="page">
+    <div class="content-glass large-eval">
+        <h2 class="eval-title">AI分析レポート</h2>
+
+        <!-- ラベルをスクロールの外へ -->
+        <div class="eval-preview-wrapper">
+            <div class="eval-preview-label">あなたのデザイン</div>
+            <div id="eval-preview-container" class="eval-preview-container">
+                <div id="eval-web-preview" class="web-preview mini-preview">
+                    <!-- ここにgame画面のプレビュー内容がコピーされます -->
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-label">分析結果</div>
+            <div class="radar-wrapper">
+                <div class="radar-label label-top">視認性</div>
+                <div class="radar-label label-bottom-right">構成</div>
+                <div class="radar-label label-bottom-left">認知負荷</div>
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <div class="ai-results-row">
+            <div id="ai-visibility" class="ai-card-v2 border-soft-red">
+                <div class="ai-header-v2 bg-soft-red">視認性分析</div>
+                <div class="rank-box">
+                    <div class="rank">?</div>
+                </div>
+                <div class="comment">分析中...</div>
+            </div>
+            <div id="ai-layout" class="ai-card-v2 border-soft-blue">
+                <div class="ai-header-v2 bg-soft-blue">構成分析</div>
+                <div class="rank-box">
+                    <div class="rank">?</div>
+                </div>
+                <div class="comment">分析中...</div>
+            </div>
+            <div id="ai-cognitive" class="ai-card-v2 border-soft-green">
+                <div class="ai-header-v2 bg-soft-green">認知負荷</div>
+                <div class="rank-box">
+                    <div class="rank">?</div>
+                </div>
+                <div class="comment">分析中...</div>
+            </div>
+        </div>
+
+        <div class="total-score-box">
+            <div class="total-label">総合デザインスコア</div>
+            <div class="total-value" id="span-total-score">--</div>
+        </div>
+
+        <div class="center-btn-wrapper">
+            <button id="btn-go-explanation" class="btn-primary">用語・技術の解説</button>
+        </div>
+    </div>
+</section>

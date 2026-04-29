@@ -62,18 +62,28 @@ async def evaluate(request: Request):
     category_instruction = load_text(os.path.join(SCRIPT_DIR, f"prompt_{category}.txt"))
     full_template = base_template.replace('{{CATEGORY_INSTRUCTION}}', category_instruction)
     
+    COLOR_NAME_MAP = {
+        '#ffffff': '白', '#1e293b': '紺', '#94a3b8': '灰', '#86efac': '緑',
+        '#93c5fd': '青', '#c4b5fd': '紫', '#fda4af': '赤', '#fdba74': '橙',
+        '#fef08a': '黄', '#f5f5f4': '砂'
+    }
+    
+    def get_color_name(hex_code):
+        return COLOR_NAME_MAP.get(hex_code.lower(), hex_code)
+
     prompt = full_template\
         .replace('{category}', str(category))\
-        .replace('{bgColor}', str(params.get('bgColor')))\
-        .replace('{textColor}', str(params.get('textColor')))\
-        .replace('{titleColor}', str(params.get('titleColor')))\
-        .replace('{cardColor}', str(params.get('cardColor')))\
+        .replace('{bgColor}', get_color_name(str(params.get('bgColor'))))\
+        .replace('{textColor}', get_color_name(str(params.get('textColor'))))\
+        .replace('{titleColor}', get_color_name(str(params.get('titleColor'))))\
+        .replace('{cardColor}', get_color_name(str(params.get('cardColor'))))\
         .replace('{titleSize}', str(params.get('titleSize')))\
         .replace('{fontSize}', str(params.get('fontSize')))\
         .replace('{lineHeight}', str(params.get('lineHeight')))\
         .replace('{padding}', str(params.get('padding')))\
         .replace('{layout}', str(params.get('layout')))\
-        .replace('{imgSize}', str(params.get('imgSize')))
+        .replace('{imgWidth}', str(params.get('imgWidth', '100%')))\
+        .replace('{imgHeight}', str(params.get('imgHeight', '300px')))
 
     last_error = ""
     for model_name in MODELS:
