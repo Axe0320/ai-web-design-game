@@ -1,0 +1,81 @@
+<section id="page-settings" class="page">
+    <div class="content-glass settings-glass">
+        <div class="settings-header">
+            <button id="btn-back-from-settings" class="settings-back-btn">← タイトルへ戻る</button>
+            <h2 class="settings-title">設定</h2>
+        </div>
+
+        <div class="settings-body">
+
+            <div class="settings-section">
+                <h3 class="settings-section-title">接続情報</h3>
+
+                <div class="model-order-section">
+                    <p class="model-order-label">使用モデル（優先順）</p>
+                    <div id="model-order-container"></div>
+                </div>
+
+                <div class="settings-info-grid">
+                    <div class="settings-info-item">
+                        <span class="info-label">API エンドポイント</span>
+                        <span class="info-value">/api/evaluate</span>
+                    </div>
+                    <div class="settings-info-item">
+                        <span class="info-label">接続ステータス</span>
+                        <span class="info-value" id="settings-api-status">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="settings-section-title">APIキー管理</h3>
+
+                <div class="key-method-card">
+                    <div class="key-method-header">
+                        <span class="key-method-badge key-method-badge--env">方式1</span>
+                        <span class="key-method-title">環境変数キー（推奨）</span>
+                    </div>
+                    <div id="env-key-list" class="key-btn-group">
+                        <span class="key-loading">読み込み中...</span>
+                    </div>
+                </div>
+
+                <div class="key-method-card">
+                    <div class="key-method-header">
+                        <span class="key-method-badge key-method-badge--custom">方式2</span>
+                        <span class="key-method-title">直接入力（バックアップ）</span>
+                    </div>
+                    <div class="custom-key-input-area">
+                        <input type="password" id="custom-key-input" class="modal-input" placeholder="APIキーを貼り付け" autocomplete="off">
+                        <button id="btn-save-custom-key" class="settings-action-btn">保存</button>
+                    </div>
+                    <p id="custom-key-saved-status" class="key-saved-status"></p>
+                </div>
+
+                <div class="current-key-display">
+                    <span class="info-label">現在の設定:</span>
+                    <span id="current-key-label" class="current-key-value current-key-value--warn">未設定</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="settings-section-title">テストモード</h3>
+                <p class="settings-section-note">ONにするとAIへのリクエストを送らず、モックデータで全画面の動作を確認できます。</p>
+                <div class="settings-actions">
+                    <button id="btn-toggle-test-mode" class="settings-action-btn">テストモード ON にする</button>
+                </div>
+                <p id="test-mode-status" class="test-mode-status-label"></p>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="settings-section-title">デバッグ操作</h3>
+                <div class="settings-actions">
+                    <button id="btn-test-api" class="settings-action-btn">API疎通テスト</button>
+                    <button id="btn-clear-storage" class="settings-action-btn settings-action-btn--danger">localStorage をクリア</button>
+                </div>
+                <div id="settings-debug-log" class="settings-debug-log"></div>
+            </div>
+
+        </div>
+    </div>
+</section>

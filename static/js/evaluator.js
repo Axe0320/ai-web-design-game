@@ -43,7 +43,23 @@ export function initRadarChart(scores, currentChart) {
 // export async function loadAIPrompt() { ... }
 
 // Gemma 3 APIを使用してサーバー側で評価を行う
-export async function generateAIInsight(generator, category, score, params) {
+export async function generateAIInsight(generator, category, score, params, keyParams = {}) {
+    // テストモード: APIを呼ばずモックデータを返す
+    if (localStorage.getItem('testMode') === 'on') {
+        await new Promise(r => setTimeout(r, 700));
+        return {
+            grade: 'TEST',
+            score: 0,
+            reasons: [
+                'テストモード中のため AI は呼び出されていません',
+                'UIの動作・表示の確認にご利用ください'
+            ],
+            advice: 'テストモードを OFF にするとAI診断が有効になります。',
+            model: 'test-mode',
+            rate_limited: false
+        };
+    }
+
     try {
         const response = await fetch('/api/evaluate', {
             method: 'POST',
@@ -51,19 +67,19 @@ export async function generateAIInsight(generator, category, score, params) {
             body: JSON.stringify({
                 category: category,
                 score: score,
-                params: params
-                // promptの送信も不要になりました
+                params: params,
+                ...keyParams
             })
         });
-        
+
         const data = await response.json();
         return data;
     } catch (e) {
-        return { 
-            grade: "Error", 
-            score: 0, 
-            reasons: ["通信エラー"], 
-            advice: "サーバーとの通信に失敗しました。APIキーを確認してください。" 
+        return {
+            grade: 'Error',
+            score: 0,
+            reasons: ['通信エラー'],
+            advice: 'サーバーとの通信に失敗しました。APIキーを確認してください。'
         };
     }
 }

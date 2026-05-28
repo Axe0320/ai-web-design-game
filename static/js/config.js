@@ -31,3 +31,6 @@ export const PADDING_MAP = { "1": "15px", "2": "30px", "3": "60px", "4": "100px"
 export const IMG_WIDTH_MAP = { "1": "30%", "2": "50%", "3": "70%", "4": "90%", "5": "100%" };
 export const IMG_HEIGHT_MAP = { "1": "100px", "2": "200px", "3": "300px", "4": "450px", "5": "600px" };
 export const LABEL_MAP = { "1": "極小", "2": "小", "3": "標準", "4": "大", "5": "最大" };
+
+// SHA-256 hash of the settings password
+export const SETTINGS_PASSWORD_HASH = '869903b7c8b4a3e84fbf7569646ee4600f0779fc3ffca13660ce2972d2912ae0';

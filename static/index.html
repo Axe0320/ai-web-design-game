@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="static/css/preview.css?v=3">
     <link rel="stylesheet" href="static/css/evaluation.css?v=3">
     <link rel="stylesheet" href="static/css/explanation.css?v=3">
+    <link rel="stylesheet" href="static/css/settings.css?v=1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +31,25 @@
             <div class="loading-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px;">
                 <div class="loading-spinner"></div>
                 <p>ページを読み込んでいます...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- テストモードバナー（全画面共通） -->
+    <div id="test-mode-banner" style="display:none;">
+        🔧 テストモード中 — AIは呼び出されません
+    </div>
+
+    <!-- パスワード確認モーダル -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-card">
+            <p class="modal-title">デバッグモード</p>
+            <p class="modal-sub">パスワードを入力してください</p>
+            <input type="password" id="password-input" class="modal-input" placeholder="パスワード" autocomplete="off">
+            <p id="password-error" class="modal-error"></p>
+            <div class="modal-actions">
+                <button id="btn-modal-cancel" class="btn-secondary">キャンセル</button>
+                <button id="btn-modal-confirm" class="btn-primary">確認</button>
             </div>
         </div>
     </div>

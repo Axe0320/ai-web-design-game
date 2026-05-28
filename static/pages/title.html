@@ -9,8 +9,15 @@
         <div class="center-btn-wrapper">
             <button id="btn-start" class="btn-primary">スタート！</button>
         </div>
-        <div id="model-status-container" class="status-badge">
-            <span id="status-icon">⏳</span> <span id="model-status">API接続を確認中...</span>
+        <div class="badge-stack">
+            <div id="model-status-container" class="status-badge">
+                <span id="status-icon">⏳</span> <span id="model-status">API接続を確認中...</span>
+            </div>
+            <div id="key-status-container" class="key-status-badge key-status-badge--danger">
+                <span id="key-status-icon">⚠</span>
+                <span id="key-status-text">APIキー未設定 — 設定画面で選択してください</span>
+            </div>
         </div>
     </div>
+    <button id="btn-open-settings" class="debug-entry-btn" title="デバッグモード">⚙</button>
 </section>

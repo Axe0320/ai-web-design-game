@@ -1,5 +1,7 @@
-import { DEFAULTS, SOFT_COLORS, SIZE_MAP, TITLE_SIZE_MAP, CARD_TITLE_SIZE_MAP, LINE_MAP, PADDING_MAP, IMG_WIDTH_MAP, IMG_HEIGHT_MAP, LABEL_MAP } from './config.js';
+import { DEFAULTS, SOFT_COLORS, SIZE_MAP, TITLE_SIZE_MAP, CARD_TITLE_SIZE_MAP, LINE_MAP, PADDING_MAP, IMG_WIDTH_MAP, IMG_HEIGHT_MAP, LABEL_MAP, SETTINGS_PASSWORD_HASH } from './config.js';
 import { getContrastScore, initRadarChart, generateAIInsight } from './evaluator.js';
+
+const DEFAULT_MODELS = ['gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'gemini-3.1-flash-lite'];
 
 document.addEventListener('DOMContentLoaded', async () => {
     const state = {
@@ -10,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ページの読み込み
     async function loadPages() {
-        const pages = ['title', 'how-to', 'game', 'evaluation', 'explanation'];
+        const pages = ['title', 'how-to', 'game', 'evaluation', 'explanation', 'settings'];
         const container = document.getElementById('page-container');
         
         let combinedHtml = '';
@@ -24,22 +26,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function initApp() {
-        await loadPages();
-        
-        // ランダム設定で初期化
-        randomizeDesign();
-        
-        // UI初期化
-        initAPIStatus();
-        setupColorOptions();
-        setupSliders();
-        setupEventListeners();
-        
-        // 初期プレビューのスタイルを適用
-        updatePreview();
-        
-        // 最初のページを表示
-        navigateTo('page-title');
+        try {
+            await loadPages();
+            
+            // ページ読み込み後、まずAPI状態を表示（ボタンを有効化）
+            initAPIStatus();
+
+            // その他の初期化
+            randomizeDesign();
+            setupColorOptions();
+            setupSliders();
+            setupEventListeners();
+            updatePreview();
+            
+            // 最初のページを表示
+            navigateTo('page-title');
+            updateKeyStatusBadge(); // 全初期化が終わった後に呼ぶ（initAPIStatus上書きを防ぐ）
+            updateTestModeUI();
+            console.log("App initialized successfully");
+        } catch (error) {
+            console.error("Initialization failed:", error);
+            // 致命的なエラーでもAPIステータスだけは試みる
+            initAPIStatus();
+        }
     }
 
     function initAPIStatus() {
@@ -48,12 +57,90 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnEval.disabled = false;
             btnEval.textContent = 'AI診断を開始！';
         }
-        const badge = document.getElementById('model-status-container');
-        if (badge) {
-            badge.classList.remove('loading');
-            badge.classList.add('ready');
-            document.getElementById('status-icon').textContent = '⚡';
-            document.getElementById('model-status').textContent = 'Gemma / Multi-Model 接続準備完了';
+        // テストモード中はモデルバッジをテスト表示に固定
+        if (localStorage.getItem('testMode') === 'on') {
+            updateModelStatusBadge('test');
+        } else {
+            const lastName = localStorage.getItem('lastModelName');
+            updateModelStatusBadge('pending', lastName || null);
+        }
+    }
+
+    function updateModelStatusBadge(status, modelName) {
+        const container = document.getElementById('model-status-container');
+        const icon = document.getElementById('status-icon');
+        const text = document.getElementById('model-status');
+        if (!container || !icon || !text) return;
+
+        container.classList.remove('ready', 'status-badge--ok', 'status-badge--limited', 'status-badge--error', 'status-badge--test');
+
+        if (status === 'test') {
+            icon.textContent = '🔧';
+            text.textContent = 'テストモード中';
+            container.classList.add('status-badge--test');
+        } else if (status === 'ok') {
+            icon.textContent = '⚡';
+            text.textContent = `${modelName} — 接続OK`;
+            container.classList.add('status-badge--ok');
+            localStorage.setItem('lastModelName', modelName);
+        } else if (status === 'limited') {
+            icon.textContent = '⚠';
+            text.textContent = `${modelName || '全モデル'} — 制限中`;
+            container.classList.add('status-badge--limited');
+            if (modelName) localStorage.setItem('lastModelName', modelName);
+        } else if (status === 'error') {
+            icon.textContent = '❌';
+            text.textContent = '接続エラー';
+            container.classList.add('status-badge--error');
+        } else {
+            // pending: 前回のモデル名があれば参考表示
+            icon.textContent = '⏳';
+            text.textContent = modelName ? `前回: ${modelName}` : '未確認';
+        }
+    }
+
+    function toggleTestMode() {
+        const isOn = localStorage.getItem('testMode') === 'on';
+        localStorage.setItem('testMode', isOn ? 'off' : 'on');
+        updateTestModeUI();
+        updateModelStatusBadge(isOn ? 'pending' : 'test', localStorage.getItem('lastModelName') || null);
+    }
+
+    function updateTestModeUI() {
+        const isOn = localStorage.getItem('testMode') === 'on';
+
+        // 設定画面: トグルボタン
+        const toggleBtn = document.getElementById('btn-toggle-test-mode');
+        if (toggleBtn) {
+            toggleBtn.textContent = isOn ? 'テストモード OFF にする' : 'テストモード ON にする';
+            toggleBtn.className = isOn
+                ? 'settings-action-btn settings-action-btn--test-on'
+                : 'settings-action-btn';
+        }
+
+        // 設定画面: ステータスラベル
+        const statusEl = document.getElementById('test-mode-status');
+        if (statusEl) {
+            statusEl.textContent = isOn ? '🔧 テストモード中 — APIは呼び出されません' : '';
+            statusEl.className = isOn ? 'test-mode-status-label active' : 'test-mode-status-label';
+        }
+
+        // 全画面共通バナー
+        const banner = document.getElementById('test-mode-banner');
+        if (banner) banner.style.display = isOn ? 'block' : 'none';
+
+        // タイトル: スタートボタン
+        const btnStart = document.getElementById('btn-start');
+        if (btnStart) {
+            btnStart.textContent = isOn ? '🔧 テスト診断を開始' : 'スタート！';
+            btnStart.classList.toggle('btn-test-mode', isOn);
+        }
+
+        // ゲーム画面: 診断ボタン
+        const btnEval = document.getElementById('btn-evaluate');
+        if (btnEval && btnEval.textContent !== 'AI診断中...') {
+            btnEval.textContent = isOn ? '🔧 テスト診断を開始！' : 'AI診断を開始！';
+            btnEval.classList.toggle('btn-test-mode', isOn);
         }
     }
 
@@ -146,6 +233,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         setClick('btn-back-to-title-from-eval', () => navigateTo('page-title'));
         setClick('btn-back-to-eval', () => navigateTo('page-evaluation'));
         setClick('btn-go-explanation', () => { navigateTo('page-explanation'); updateExp('design'); });
+        setClick('btn-back-from-settings', () => navigateTo('page-title'));
+
+        // 設定画面ボタン
+        setClick('btn-open-settings', showPasswordModal);
+        setClick('btn-modal-cancel', hidePasswordModal);
+        setClick('btn-modal-confirm', handlePasswordConfirm);
+        const pwInput = document.getElementById('password-input');
+        if (pwInput) pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') handlePasswordConfirm(); });
+
+        // デバッグ操作ボタン
+        setClick('btn-test-api', testApiConnection);
+        setClick('btn-clear-storage', clearLocalStorage);
+        setClick('btn-toggle-test-mode', toggleTestMode);
+
+        // カスタムキー保存
+        setClick('btn-save-custom-key', saveCustomKey);
+        const ckInput = document.getElementById('custom-key-input');
+        if (ckInput) ckInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomKey(); });
         
         // 評価ボタン
         const btnEval = document.getElementById('btn-evaluate');
@@ -160,7 +265,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         syncPreviewToEvaluation();
         
         navigateTo('page-evaluation');
-        
+
+        const totalEl = document.getElementById('span-total-score');
+        if (totalEl) totalEl.textContent = '--';
+
         const btnExp = document.getElementById('btn-go-explanation');
         btnExp.disabled = true;
         btnExp.textContent = "AI分析が完了するまでお待ちください...";
@@ -168,28 +276,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         state.scores = { visibility: 0, layout: 0, cognitive: 0 };
         state.radarChart = initRadarChart(state.scores, state.radarChart);
 
-        const rankColors = { 'S': '#eab308', 'A': '#ef4444', 'B': '#3b82f6', 'C': '#10b981', 'D': '#94a3b8' };
+        const rankColors = { 'S': '#eab308', 'A': '#ef4444', 'B': '#3b82f6', 'C': '#10b981', 'D': '#94a3b8', 'TEST': '#7e22ce' };
         const categories = ['visibility', 'layout', 'cognitive'];
 
-        const evaluationPromises = categories.map(async (id) => {
+        const keyParams = getKeyParams();
+        const modelStatus = { model: null, rateLimited: false, hasError: false };
+        const evaluationPromises = categories.map(async (id, index) => {
+            await new Promise(r => setTimeout(r, index * 400));
             const card = document.getElementById(`ai-${id}`);
-            card.querySelector('.rank').textContent = "...";
+            const rankEl = card.querySelector('.rank');
+            rankEl.textContent = "...";
+            rankEl.style.color = '#94a3b8';
             card.querySelector('.comment').innerHTML = `
                 <div style="display: flex; align-items: center; gap: 10px; color: #64748b; font-weight: 700;">
                     <div class="loading-spinner-small"></div> AIが多角的に分析中...
                 </div>`;
-            
+
             try {
-                const result = await generateAIInsight(null, id, 0, state.designParams);
-                
+                const result = await generateAIInsight(null, id, 0, state.designParams, keyParams);
+                if (result.rate_limited) modelStatus.rateLimited = true;
+                if (result.model) modelStatus.model = result.model;
+                if (result.grade === 'Error') modelStatus.hasError = true;
+
                 const scoreValue = parseInt(result.score) || 0;
                 const gradeValue = result.grade || 'C';
                 const modelName = result.model || 'AI';
 
                 state.scores[id] = scoreValue;
                 state.radarChart = initRadarChart(state.scores, state.radarChart);
-                card.querySelector('.rank').textContent = gradeValue;
-                card.querySelector('.rank').style.color = rankColors[gradeValue] || '#94a3b8';
+                rankEl.textContent = gradeValue;
+                rankEl.style.color = rankColors[gradeValue] || '#94a3b8';
 
                 const reasonsHtml = (result.reasons || []).map(r => `
                     <li style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
@@ -216,12 +332,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 `;
             } catch (err) {
+                modelStatus.hasError = true;
                 card.querySelector('.comment').textContent = "通信エラーが発生しました。";
             }
         });
 
         await Promise.all(evaluationPromises);
-        
+
+        if (modelStatus.rateLimited) {
+            updateModelStatusBadge('limited', modelStatus.model);
+        } else if (modelStatus.model && !modelStatus.hasError) {
+            updateModelStatusBadge('ok', modelStatus.model);
+        } else if (modelStatus.hasError) {
+            updateModelStatusBadge('error', null);
+        }
+
         btnExp.disabled = false;
         btnExp.textContent = "用語・技術の解説";
 
@@ -377,11 +502,309 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // サイドバーのタイトル戻りボタン
-        setClick('btn-back-to-title-side', () => navigateTo('page-title'));
+        // サイドバーのタイトル戻りボタン（setClickはsetupEventListeners内スコープのため直接登録）
+        const sideBackBtn = document.getElementById('btn-back-to-title-side');
+        if (sideBackBtn) sideBackBtn.onclick = () => navigateTo('page-title');
     }
 
-    function navigateTo(id) { 
+    // --- パスワード認証 ---
+
+    async function hashString(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showPasswordModal() {
+        const modal = document.getElementById('password-modal');
+        if (!modal) return;
+        document.getElementById('password-input').value = '';
+        document.getElementById('password-error').textContent = '';
+        modal.classList.add('active');
+        setTimeout(() => document.getElementById('password-input').focus(), 50);
+    }
+
+    function hidePasswordModal() {
+        const modal = document.getElementById('password-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    async function handlePasswordConfirm() {
+        const input = document.getElementById('password-input').value;
+        const hash = await hashString(input);
+        if (hash === SETTINGS_PASSWORD_HASH) {
+            hidePasswordModal();
+            navigateTo('page-settings');
+            initSettingsPage();
+        } else {
+            document.getElementById('password-error').textContent = 'パスワードが違います';
+            document.getElementById('password-input').value = '';
+            document.getElementById('password-input').focus();
+        }
+    }
+
+    // --- 設定ページ ---
+
+    async function initSettingsPage() {
+        const log = document.getElementById('settings-debug-log');
+        if (log) log.textContent = '';
+        const statusEl = document.getElementById('settings-api-status');
+        if (statusEl) statusEl.textContent = '未確認';
+        await loadEnvKeys();
+        loadCustomKeyStatus();
+        updateCurrentKeyDisplay();
+        updateTestModeUI();
+        renderModelOrderUI();
+    }
+
+    // --- APIキー管理 ---
+
+    function loadModelOrder() {
+        try {
+            const saved = localStorage.getItem('modelOrder');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch {}
+        return [...DEFAULT_MODELS];
+    }
+
+    function saveModelOrder(order) {
+        localStorage.setItem('modelOrder', JSON.stringify(order));
+    }
+
+    function renderModelOrderUI() {
+        const container = document.getElementById('model-order-container');
+        if (!container) return;
+        const models = loadModelOrder();
+        const isDefault = JSON.stringify(models) === JSON.stringify(DEFAULT_MODELS);
+
+        let html = `<table class="model-order-table">
+            <thead><tr><th>優先</th><th>モデル名</th><th></th></tr></thead>
+            <tbody>`;
+        models.forEach((m, i) => {
+            html += `<tr>
+                <td>${i + 1}</td>
+                <td>${m}</td>
+                <td>
+                    <button class="model-move-btn" data-index="${i}" data-dir="-1" ${i === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="model-move-btn" data-index="${i}" data-dir="1" ${i === models.length - 1 ? 'disabled' : ''}>↓</button>
+                </td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        if (!isDefault) {
+            html += `<button class="model-order-reset-btn" id="btn-reset-model-order">デフォルトに戻す</button>`;
+        }
+        container.innerHTML = html;
+
+        container.querySelectorAll('.model-move-btn').forEach(btn => {
+            btn.onclick = () => {
+                const idx = parseInt(btn.dataset.index);
+                const dir = parseInt(btn.dataset.dir);
+                const order = loadModelOrder();
+                const newIdx = idx + dir;
+                if (newIdx < 0 || newIdx >= order.length) return;
+                [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
+                saveModelOrder(order);
+                renderModelOrderUI();
+            };
+        });
+
+        const resetBtn = document.getElementById('btn-reset-model-order');
+        if (resetBtn) {
+            resetBtn.onclick = () => {
+                localStorage.removeItem('modelOrder');
+                renderModelOrderUI();
+            };
+        }
+    }
+
+    function getKeyParams() {
+        const params = {};
+        const mode = localStorage.getItem('keyMode');
+        if (mode === 'custom') {
+            const key = localStorage.getItem('customKey');
+            if (key) params.customKey = key;
+        } else if (mode === 'env') {
+            const idx = localStorage.getItem('keyIndex');
+            if (idx) params.keyIndex = parseInt(idx);
+        }
+        params.modelOrder = loadModelOrder();
+        return params;
+    }
+
+    function updateKeyStatusBadge() {
+        const keyContainer = document.getElementById('key-status-container');
+        if (!keyContainer) return;
+
+        const mode = localStorage.getItem('keyMode');
+        const idx  = localStorage.getItem('keyIndex');
+
+        if (mode === 'env' && idx) {
+            keyContainer.className = 'key-status-badge key-status-badge--ready';
+            document.getElementById('key-status-icon').textContent = '🔑';
+            document.getElementById('key-status-text').textContent = `APIキー ${idx} 選択中`;
+        } else if (mode === 'custom') {
+            keyContainer.className = 'key-status-badge key-status-badge--custom';
+            document.getElementById('key-status-icon').textContent = '🔑';
+            document.getElementById('key-status-text').textContent = 'カスタムキー 使用中';
+        } else {
+            keyContainer.className = 'key-status-badge key-status-badge--danger';
+            document.getElementById('key-status-icon').textContent = '⚠';
+            document.getElementById('key-status-text').textContent = 'APIキー未設定 — 設定画面で選択してください';
+        }
+    }
+
+    async function loadEnvKeys() {
+        const container = document.getElementById('env-key-list');
+        if (!container) return;
+        container.innerHTML = '<span class="key-loading">読み込み中...</span>';
+        try {
+            const res  = await fetch('/api/keys');
+            const data = await res.json();
+            if (!data.keys || data.keys.length === 0) {
+                container.innerHTML = '<span class="key-loading">環境変数にキーが設定されていません</span>';
+                return;
+            }
+            const savedMode = localStorage.getItem('keyMode');
+            const savedIdx  = parseInt(localStorage.getItem('keyIndex'));
+            container.innerHTML = '';
+            data.keys.forEach(k => {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn' + (savedMode === 'env' && savedIdx === k.index ? ' active' : '');
+                btn.textContent = k.label;
+                btn.onclick = () => selectEnvKey(k.index, k.label);
+                container.appendChild(btn);
+            });
+        } catch {
+            container.innerHTML = '<span class="key-loading key-loading--error">読み込みエラー</span>';
+        }
+    }
+
+    function selectEnvKey(index, label) {
+        localStorage.setItem('keyMode', 'env');
+        localStorage.setItem('keyIndex', index);
+        localStorage.removeItem('customKey');
+        document.querySelectorAll('#env-key-list .key-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === label);
+        });
+        const cs = document.getElementById('custom-key-saved-status');
+        if (cs) { cs.textContent = ''; cs.className = 'key-saved-status'; }
+        updateCurrentKeyDisplay();
+        updateKeyStatusBadge();
+    }
+
+    function loadCustomKeyStatus() {
+        const mode = localStorage.getItem('keyMode');
+        const key  = localStorage.getItem('customKey');
+        const el   = document.getElementById('custom-key-saved-status');
+        if (!el) return;
+        if (mode === 'custom' && key) {
+            el.textContent = `保存済み: ${'•'.repeat(Math.max(0, key.length - 4))}${key.slice(-4)}`;
+            el.className = 'key-saved-status key-saved-status--ok';
+        } else {
+            el.textContent = '';
+            el.className = 'key-saved-status';
+        }
+    }
+
+    function saveCustomKey() {
+        const input = document.getElementById('custom-key-input');
+        if (!input || !input.value.trim()) return;
+        const key = input.value.trim();
+        localStorage.setItem('keyMode', 'custom');
+        localStorage.setItem('customKey', key);
+        localStorage.removeItem('keyIndex');
+        document.querySelectorAll('#env-key-list .key-btn').forEach(b => b.classList.remove('active'));
+        const el = document.getElementById('custom-key-saved-status');
+        if (el) {
+            el.textContent = `保存済み: ${'•'.repeat(Math.max(0, key.length - 4))}${key.slice(-4)}`;
+            el.className = 'key-saved-status key-saved-status--ok';
+        }
+        input.value = '';
+        updateCurrentKeyDisplay();
+        updateKeyStatusBadge();
+    }
+
+    function updateCurrentKeyDisplay() {
+        const el = document.getElementById('current-key-label');
+        if (!el) return;
+        const mode = localStorage.getItem('keyMode');
+        const idx  = localStorage.getItem('keyIndex');
+        if (mode === 'env' && idx) {
+            el.textContent = `APIキー ${idx}（環境変数）`;
+            el.className = 'current-key-value current-key-value--ok';
+        } else if (mode === 'custom') {
+            el.textContent = 'カスタムキー（直接入力）';
+            el.className = 'current-key-value current-key-value--custom';
+        } else {
+            el.textContent = '未設定（デフォルト使用中）';
+            el.className = 'current-key-value current-key-value--warn';
+        }
+    }
+
+    function appendLog(msg, type = 'info') {
+        const log = document.getElementById('settings-debug-log');
+        if (!log) return;
+        const span = document.createElement('span');
+        span.className = `log-${type}`;
+        span.textContent = `[${new Date().toLocaleTimeString('ja-JP')}] ${msg}\n`;
+        log.appendChild(span);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    async function testApiConnection() {
+        appendLog('API接続テストを送信中...', 'info');
+        const statusEl = document.getElementById('settings-api-status');
+        const btn = document.getElementById('btn-test-api');
+        if (btn) { btn.disabled = true; btn.textContent = 'テスト中...'; }
+        try {
+            const res = await fetch('/api/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(getKeyParams())
+            });
+            const data = await res.json();
+            if (data.ok) {
+                appendLog(`接続成功 [${data.model}]`, 'ok');
+                appendLog(`返答: ${data.message}`, 'info');
+                if (statusEl) statusEl.textContent = `接続成功 (${data.model})`;
+                updateModelStatusBadge('ok', data.model);
+            } else {
+                const isRateLimited = data.rate_limited;
+                appendLog(`接続失敗 — ${data.message}`, 'err');
+                if (data.error_code) {
+                    appendLog(`エラーコード: ${data.error_code} ${data.error_kind}`, 'err');
+                    appendLog(`原因: ${data.error_cause}`, 'info');
+                }
+                if (data.model_errors && data.model_errors.length > 0) {
+                    data.model_errors.forEach(me => {
+                        appendLog(`  ${me.model}: ${me.code} ${me.kind}`, 'info');
+                    });
+                }
+                if (statusEl) statusEl.textContent = data.error_code ? `失敗 (${data.error_code})` : '接続失敗';
+                updateModelStatusBadge(isRateLimited ? 'limited' : 'error', null);
+            }
+        } catch (e) {
+            appendLog(`通信エラー — ${e.message}`, 'err');
+            if (statusEl) statusEl.textContent = '通信エラー';
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'API接続テスト'; }
+        }
+    }
+
+    function clearLocalStorage() {
+        localStorage.clear();
+        appendLog('localStorage をクリアしました', 'ok');
+        updateKeyStatusBadge();
+        updateModelStatusBadge('pending');
+        updateTestModeUI();
+    }
+
+    // -------------------------
+
+    function navigateTo(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); 
         const target = document.getElementById(id);
         if (target) {

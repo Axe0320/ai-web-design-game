@@ -1,0 +1,644 @@
+/* ============================================================
+   パスワードモーダル
+   ============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transform: translateY(16px);
+    transition: transform 0.25s ease;
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0);
+}
+
+.modal-title {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-align: center;
+}
+
+.modal-sub {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    text-align: center;
+    margin-top: -0.5rem;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+    border-color: var(--accent-blue);
+}
+
+.modal-error {
+    font-size: 0.85rem;
+    color: var(--soft-red);
+    font-weight: 700;
+    min-height: 1.2em;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.modal-actions .btn-secondary,
+.modal-actions .btn-primary {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    font-weight: 800;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+.modal-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================================
+   タイトル画面: デバッグ入口ボタン
+   ============================================================ */
+.debug-entry-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: #1e293b;
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.debug-entry-btn:hover {
+    background: #0f172a;
+    transform: rotate(30deg);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* ============================================================
+   設定ページ
+   ============================================================ */
+.settings-glass {
+    text-align: left;
+    max-width: 780px;
+    padding: 2.5rem 3rem;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.settings-back-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    padding: 0.65rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.settings-back-btn:hover {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.settings-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--text-main);
+}
+
+.settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.settings-section-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    letter-spacing: 0.03em;
+    padding-left: 0.75rem;
+    border-left: 4px solid var(--accent-blue);
+}
+
+.settings-section-note {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    line-height: 1.7;
+}
+
+.settings-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+}
+
+.settings-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    min-width: 160px;
+    padding-top: 0.1rem;
+}
+
+.info-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    word-break: break-all;
+}
+
+.settings-placeholder-box {
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.settings-action-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: 0.2s;
+    font-family: inherit;
+}
+
+.settings-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.settings-action-btn--danger {
+    color: var(--soft-red);
+    border-color: #fecaca;
+}
+
+.settings-action-btn--danger:hover {
+    background: #fef2f2;
+    border-color: var(--soft-red);
+}
+
+.settings-debug-log {
+    background: #0f172a;
+    color: #94a3b8;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 0.8rem;
+    font-family: 'Courier New', monospace;
+    min-height: 60px;
+    max-height: 160px;
+    overflow-y: auto;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.settings-debug-log:empty::before {
+    content: 'ログはここに表示されます...';
+    color: #475569;
+}
+
+.log-ok   { color: #34d399; }
+.log-err  { color: #f87171; }
+.log-info { color: #93c5fd; }
+
+/* ============================================================
+   APIキー管理UI
+   ============================================================ */
+.key-method-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.key-method-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.key-method-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.key-method-badge--env    { background: #dbeafe; color: #1d4ed8; }
+.key-method-badge--custom { background: #fef3c7; color: #92400e; }
+
+.key-method-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.key-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.key-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: 0.15s;
+    font-family: inherit;
+}
+
+.key-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.key-btn.active {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: #ffffff;
+}
+
+.key-loading {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.key-loading--error { color: var(--soft-red); }
+
+.custom-key-input-area {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.custom-key-input-area .modal-input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+}
+
+.key-saved-status {
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-height: 1.2em;
+}
+
+.key-saved-status--ok { color: var(--soft-green); }
+
+.current-key-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.2rem;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+
+.current-key-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.current-key-value--ok     { color: #1d4ed8; }
+.current-key-value--custom { color: #92400e; }
+.current-key-value--warn   { color: #b45309; }
+
+/* ============================================================
+   タイトル画面: バッジ縦並びコンテナ
+   ============================================================ */
+.badge-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+}
+
+/* badge-stack 内の両バッジをサイズ統一 */
+.badge-stack .status-badge,
+.badge-stack .key-status-badge {
+    padding: 0.65rem 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-top: 0;
+}
+
+/* モデルバッジの状態カラー */
+.status-badge--ok {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge--limited {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-badge--error {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ============================================================
+   タイトル画面: キーステータスバッジ
+   ============================================================ */
+.key-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.key-status-badge--ready {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.key-status-badge--custom {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.key-status-badge--warn {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.key-status-badge--danger {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ============================================================
+   モデルバッジ: テストモード
+   ============================================================ */
+.status-badge--test {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+/* ============================================================
+   テストモードステータスラベル（設定画面）
+   ============================================================ */
+.test-mode-status-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    min-height: 1.2em;
+    color: #7e22ce;
+}
+
+.test-mode-status-label.active {
+    background: #f3e8ff;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+}
+
+.settings-action-btn--test-on {
+    background: #f3e8ff;
+    border-color: #c084fc;
+    color: #7e22ce;
+}
+
+.settings-action-btn--test-on:hover {
+    background: #ede9fe;
+    border-color: #7e22ce;
+}
+
+/* ============================================================
+   テストモードバナー（全画面固定）
+   ============================================================ */
+#test-mode-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #7e22ce;
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 0.4rem 1rem;
+    z-index: 2000;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   テストモード中のボタン
+   ============================================================ */
+.btn-test-mode {
+    background: #7e22ce !important;
+    box-shadow: 0 4px 16px rgba(126, 34, 206, 0.35) !important;
+}
+
+.btn-test-mode:hover {
+    background: #6b21a8 !important;
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   モデル優先順テーブル
+   ============================================================ */
+.model-order-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.model-order-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin: 0;
+}
+
+.model-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.model-order-table th {
+    text-align: left;
+    color: var(--text-sub);
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 0.55rem 0.85rem;
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.model-order-table td {
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-main);
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.model-order-table tr:last-child td {
+    border-bottom: none;
+}
+
+.model-order-table td:first-child {
+    width: 2.5rem;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 0.8rem;
+}
+
+.model-order-table td:last-child {
+    width: 6rem;
+    text-align: right;
+}
+
+.model-move-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    transition: 0.15s;
+    font-family: inherit;
+    margin-left: 0.25rem;
+}
+
+.model-move-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.model-move-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.model-order-reset-btn {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.model-order-reset-btn:hover {
+    color: var(--text-main);
+}
