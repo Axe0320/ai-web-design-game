@@ -33,4 +33,4 @@ export const IMG_HEIGHT_MAP = { "1": "100px", "2": "200px", "3": "300px", "4": "
 export const LABEL_MAP = { "1": "極小", "2": "小", "3": "標準", "4": "大", "5": "最大" };
 
 // SHA-256 hash of the settings password
-export const SETTINGS_PASSWORD_HASH = '869903b7c8b4a3e84fbf7569646ee4600f0779fc3ffca13660ce2972d2912ae0';
+export const SETTINGS_PASSWORD_HASH = '7546978a4560ed550af0cd9cdab01b5aba33bf8b9787bf6fcb2055c157b139a9';
