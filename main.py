@@ -13,7 +13,14 @@ from dotenv import load_dotenv
 
 # .envファイルから設定を読み込む
 load_dotenv()
+
+# GEMINI_API_KEY がなければ番号付きキーを順に探してフォールバック
 API_KEY = os.getenv("GEMINI_API_KEY")
+if not API_KEY:
+    for i in range(1, 21):
+        API_KEY = os.getenv(f"GEMINI_API_KEY_{i}")
+        if API_KEY:
+            break
 
 # --- モデル設定 ---
 # 優先順位が高い順。もし上位が制限にかかっても、下位の高速モデルがカバーします。
@@ -24,7 +31,7 @@ MODELS = [
 ]
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-client = genai.Client(api_key=API_KEY)
+client = genai.Client(api_key=API_KEY) if API_KEY else None
 
 def resolve_api_key(key_index=None, custom_key=None):
     """keyIndex / customKey からAPIキーを決定し、対応するClientを返す"""
@@ -34,7 +41,7 @@ def resolve_api_key(key_index=None, custom_key=None):
         env_key = os.getenv(f"GEMINI_API_KEY_{key_index}")
         if env_key:
             return genai.Client(api_key=env_key)
-    return client  # フォールバック: 既存のGEMINI_API_KEY
+    return client  # フォールバック: 起動時に解決済みのキー
 
 app = FastAPI()
 STATIC_DIR = os.path.join(SCRIPT_DIR, "static")
