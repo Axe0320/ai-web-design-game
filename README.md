@@ -274,12 +274,14 @@ flowchart TD
 `vercel.json` が設定済みのため、GitHubリポジトリをインポートするだけでデプロイできます。
 
 デプロイ時に以下の環境変数を設定してください。
+Key 名は `GEMINI_API_KEY` または `GEMINI_API_KEY_1` `_2` ... のように連番で設定します。
 
 | Key | Value |
 |---|---|
 | `GEMINI_API_KEY_1` | APIキー1の値 |
 | `GEMINI_API_KEY_2` | APIキー2の値 |
 | `GEMINI_API_KEY_3` | APIキー3の値 |
+| `...` | 最大20本まで追加可能 |
 
 > **補足**：`GEMINI_API_KEY`（番号なし）が未設定でも、`GEMINI_API_KEY_1` 以降が設定されていれば自動的にフォールバックします。
 

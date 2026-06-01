@@ -24,13 +24,14 @@
 
 ![環境変数の設定](figures/deploy_settting_APIKey.png)
 
-設定するキーの例：
+Key 名は `GEMINI_API_KEY` または `GEMINI_API_KEY_1` `_2` ... のように連番で設定します。
 
 | Key | Value |
 |---|---|
 | `GEMINI_API_KEY_1` | APIキー1の値 |
 | `GEMINI_API_KEY_2` | APIキー2の値 |
 | `GEMINI_API_KEY_3` | APIキー3の値 |
+| `...` | 最大20本まで追加可能 |
 
 > **注意**：APIキーは **個人のGoogleアカウント** で発行してください。
 > 大学アカウント（@chibatech.ac.jp 等）では組織ポリシーによりアクセスが制限される場合があります。
