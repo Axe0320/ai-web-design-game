@@ -289,7 +289,7 @@ flowchart TD
 
 ### モデルの追加・変更
 
-`main.py` の `MODELS` リストと `static/js/app.js` の `DEFAULT_MODELS` を同時に更新します。
+`main.py` の `MODELS` と `static/js/app.js` の `DEFAULT_MODELS` を**両方同時に**更新します。
 
 ```python
 # main.py
@@ -299,6 +299,11 @@ MODELS = [
     "gemini-3.1-flash-lite",
     "your-new-model",  # 追加・変更
 ]
+```
+
+```javascript
+// static/js/app.js
+const DEFAULT_MODELS = ['gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'gemini-3.1-flash-lite', 'your-new-model'];
 ```
 
 ### APIキーの追加・変更
