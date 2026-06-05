@@ -3,6 +3,49 @@ import { getContrastScore, initRadarChart, generateAIInsight } from './evaluator
 
 const DEFAULT_MODELS = ['gemma-4-26b-a4b-it', 'gemma-4-31b-it', 'gemini-3.1-flash-lite'];
 
+const _COMMON_COMMENTS = [
+    '千葉工業大学にはチバニーという公式キャラクターがいるよ！🐰',
+    '認知情報科学科のチバニーの色はカーディナルレッド！かっこいい🎨',
+    'チバニーはWikipediaに記事があるらしい…すごい！🐰',
+    '千葉工業大学は1942年創立！現在は新習志野・津田沼にキャンパスがあるよ🏫',
+    'スカイツリーキャンパスには某有名ロボットアニメの機体があるらしい...！🤖',
+    '認知情報科学科は2024年設立！「認知科学」と「情報科学」の両方が学べるよ🎓',
+    '認知情報科学科には公式ホームページもあるよ！ぜひ確認してみてね🌐',
+    '良いデザインは気づかれない。悪いデザインはすぐ気づかれる...これが奥深いところ😏',
+    '情報を詰め込みすぎたページは、開いた瞬間に閉じられます！シンプルが最強⚡',
+    '実はこのゲーム、千葉工業大学の研究室の学生が開発しました！すごくない？👨‍💻',
+];
+
+const LOADING_COMMENTS = {
+    visibility: [
+        ..._COMMON_COMMENTS,
+        '明るい背景には暗い文字、暗い背景には明るい文字！たったそれだけで視認性は大きく変わります✨',
+        'このゲームの10色はすべてソフトカラー！組み合わせ次第で視認性が大きく変わるよ🎨',
+        'あなたの配色を吟味中...！色のプロとして正直にジャッジするよ🔍',
+        '色相・彩度・明度の3要素で配色を分析中...！プロの目線でしっかりチェックしてるよ👁️',
+        'その文字色、薄暗い画面でも読めそう？コントラスト、大事！💡',
+        '白と黒の文字、どっちが読みやすかった？背景色との相性が決め手だよ！✍️',
+    ],
+    layout: [
+        ..._COMMON_COMMENTS,
+        '余白はこのゲームで5段階設定できるよ！適切な余白はWebサイトへの「信頼感」にも影響するんだ✨',
+        '余白をゼロにするとテキストが端に張り付いて、圧迫感が出てしまいます！注意⚠️',
+        'レイアウトの均衡を確認中...！余白と要素の配置が整っているかチェック中📐',
+        '画面の重心バランスを測定中...！左右・上下の視覚的な重さを比べてるよ⚖️',
+        '左揃え・中央・右揃え、どれが一番スッキリ見えた？👀',
+        '余白を広げると情報が少なく見えるけど、実は理解しやすくなるんだよ！試してみた？😊',
+    ],
+    cognitive: [
+        ..._COMMON_COMMENTS,
+        '行間は文字サイズの1.5〜2倍が読みやすいとされています！少しの差で大きく変わるよ📖',
+        '画像サイズが崩れると無意識にストレスを感じるんです！縦横比もAIの評価に影響するよ🖼️',
+        '脳への負担を計算中...！文字の大きさや密度が読者に優しいかチェックしてるよ🧠',
+        '視線の流れを追跡中...！読み始めから読み終わりまでスムーズか確認してるよ👀',
+        'フォントサイズ、小さすぎない？読者は疲れると読むのをやめてしまいます！😅',
+        '行間が狭すぎると目が疲れてしまいます！ゆとりのある行間にしたかな？😌',
+    ],
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     const state = {
         designParams: { ...DEFAULTS },
@@ -281,6 +324,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const keyParams = getKeyParams();
         const modelStatus = { model: null, rateLimited: false, hasError: false };
+        const commentIntervals = {};
+
         const evaluationPromises = categories.map(async (id, index) => {
             await new Promise(r => setTimeout(r, index * 400));
             const card = document.getElementById(`ai-${id}`);
@@ -290,10 +335,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.querySelector('.comment').innerHTML = `
                 <div style="display: flex; align-items: center; gap: 10px; color: #64748b; font-weight: 700;">
                     <div class="loading-spinner-small"></div> AIが多角的に分析中...
-                </div>`;
+                </div>
+                <p class="loading-comment" style="opacity:1; transition:opacity 0.5s ease; font-size:0.82rem; color:#94a3b8; font-weight:600; line-height:1.6; margin:0.75rem 0 0; min-height:2.5em; text-align:center;"></p>`;
+
+            const comments = LOADING_COMMENTS[id] || LOADING_COMMENTS.visibility;
+            const commentEl = card.querySelector('.loading-comment');
+            let lastComment = '';
+            const pickComment = () => {
+                if (comments.length <= 1) return comments[0] || '';
+                let c;
+                do { c = comments[Math.floor(Math.random() * comments.length)]; } while (c === lastComment);
+                lastComment = c;
+                return c;
+            };
+            commentEl.textContent = pickComment();
+            commentIntervals[id] = setInterval(() => {
+                commentEl.style.opacity = '0';
+                setTimeout(() => {
+                    commentEl.textContent = pickComment();
+                    commentEl.style.opacity = '1';
+                }, 500);
+            }, 6000);
 
             try {
                 const result = await generateAIInsight(null, id, 0, state.designParams, keyParams);
+                clearInterval(commentIntervals[id]);
                 if (result.rate_limited) modelStatus.rateLimited = true;
                 if (result.model) modelStatus.model = result.model;
                 if (result.grade === 'Error') modelStatus.hasError = true;
@@ -332,6 +398,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 `;
             } catch (err) {
+                clearInterval(commentIntervals[id]);
                 modelStatus.hasError = true;
                 card.querySelector('.comment').textContent = "通信エラーが発生しました。";
             }
