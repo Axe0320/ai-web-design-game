@@ -68,10 +68,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = combinedHtml;
     }
 
+    async function autoSelectDefaultKey() {
+        if (localStorage.getItem('keyMode')) return;
+        try {
+            const res = await fetch('/api/has-default-key');
+            if (!res.ok) return;
+            const { available, label } = await res.json();
+            if (available) {
+                localStorage.setItem('keyMode', 'server');
+                localStorage.setItem('serverKeyLabel', label);
+            }
+        } catch (_) {}
+    }
+
     async function initApp() {
         try {
             await loadPages();
-            
+            await autoSelectDefaultKey();
+
             // ページ読み込み後、まずAPI状態を表示（ボタンを有効化）
             initAPIStatus();
 
@@ -708,7 +722,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const mode = localStorage.getItem('keyMode');
         const idx  = localStorage.getItem('keyIndex');
 
-        if (mode === 'env' && idx) {
+        if (mode === 'server') {
+            const label = localStorage.getItem('serverKeyLabel') || 'サーバーキー';
+            keyContainer.className = 'key-status-badge key-status-badge--ready';
+            document.getElementById('key-status-icon').textContent = '🔑';
+            document.getElementById('key-status-text').textContent = `${label} 使用中`;
+        } else if (mode === 'env' && idx) {
             keyContainer.className = 'key-status-badge key-status-badge--ready';
             document.getElementById('key-status-icon').textContent = '🔑';
             document.getElementById('key-status-text').textContent = `APIキー ${idx} 選択中`;
@@ -739,7 +758,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             container.innerHTML = '';
             data.keys.forEach(k => {
                 const btn = document.createElement('button');
-                btn.className = 'key-btn' + (savedMode === 'env' && savedIdx === k.index ? ' active' : '');
+                const isActive =
+                    (k.index === null && savedMode === 'server') ||
+                    (k.index !== null && savedMode === 'env' && savedIdx === k.index);
+                btn.className = 'key-btn' + (isActive ? ' active' : '');
                 btn.textContent = k.label;
                 btn.onclick = () => selectEnvKey(k.index, k.label);
                 container.appendChild(btn);
@@ -750,9 +772,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function selectEnvKey(index, label) {
-        localStorage.setItem('keyMode', 'env');
-        localStorage.setItem('keyIndex', index);
-        localStorage.removeItem('customKey');
+        if (index === null) {
+            localStorage.setItem('keyMode', 'server');
+            localStorage.setItem('serverKeyLabel', label);
+            localStorage.removeItem('keyIndex');
+            localStorage.removeItem('customKey');
+        } else {
+            localStorage.setItem('keyMode', 'env');
+            localStorage.setItem('keyIndex', index);
+            localStorage.removeItem('customKey');
+            localStorage.removeItem('serverKeyLabel');
+        }
         document.querySelectorAll('#env-key-list .key-btn').forEach(btn => {
             btn.classList.toggle('active', btn.textContent === label);
         });
@@ -783,6 +813,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('keyMode', 'custom');
         localStorage.setItem('customKey', key);
         localStorage.removeItem('keyIndex');
+        localStorage.removeItem('serverKeyLabel');
         document.querySelectorAll('#env-key-list .key-btn').forEach(b => b.classList.remove('active'));
         const el = document.getElementById('custom-key-saved-status');
         if (el) {
@@ -799,7 +830,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!el) return;
         const mode = localStorage.getItem('keyMode');
         const idx  = localStorage.getItem('keyIndex');
-        if (mode === 'env' && idx) {
+        if (mode === 'server') {
+            const label = localStorage.getItem('serverKeyLabel') || 'サーバーキー';
+            el.textContent = `${label}（環境変数）`;
+            el.className = 'current-key-value current-key-value--ok';
+        } else if (mode === 'env' && idx) {
             el.textContent = `APIキー ${idx}（環境変数）`;
             el.className = 'current-key-value current-key-value--ok';
         } else if (mode === 'custom') {

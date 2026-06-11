@@ -69,12 +69,24 @@ async def read_index():
 async def get_keys():
     """設定済みの環境変数キー一覧を返す（キーの値は返さない）"""
     keys = []
+    if os.getenv("GEMINI_API_KEY"):
+        keys.append({"index": None, "label": "サーバーキー"})
     i = 1
     while i <= 20:
         if os.getenv(f"GEMINI_API_KEY_{i}"):
             keys.append({"index": i, "label": f"APIキー {i}"})
         i += 1
     return {"keys": keys}
+
+@app.get("/api/has-default-key")
+async def has_default_key():
+    """初回アクセス時の自動キー設定用：デフォルトキーの有無とラベルを返す"""
+    if os.getenv("GEMINI_API_KEY"):
+        return {"available": True, "label": "サーバーキー"}
+    for i in range(1, 21):
+        if os.getenv(f"GEMINI_API_KEY_{i}"):
+            return {"available": True, "label": f"APIキー {i}"}
+    return {"available": False, "label": None}
 
 @app.get("/static/content/{path:path}")
 async def get_content(path: str):
