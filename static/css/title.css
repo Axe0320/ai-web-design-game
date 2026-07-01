@@ -10,15 +10,37 @@
 
 .blob {
     width: 150px; height: 150px;
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(45deg, #00f0ff, #7c3aed, #ec4899, #f97316, #22d3ee, #00f0ff);
+    background-size: 600% 600%;
     border-radius: 50%;
-    filter: blur(40px);
+    filter: blur(10px) drop-shadow(0 0 20px rgba(124, 58, 237, 0.55));
     margin: 1.5rem auto;
-    opacity: 0.3;
-    animation: float 5s infinite ease-in-out;
+    opacity: 0.9;
+    animation: float 5s infinite ease-in-out, morph 7s infinite ease-in-out, colorShift 4s infinite linear;
 }
 
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+@keyframes morph {
+    0%, 100% {
+        clip-path: polygon(50.0% 8.0%, 66.1% 11.2%, 79.7% 20.3%, 88.8% 33.9%, 92.0% 50.0%, 88.8% 66.1%, 79.7% 79.7%, 66.1% 88.8%, 50.0% 92.0%, 33.9% 88.8%, 20.3% 79.7%, 11.2% 66.1%, 8.0% 50.0%, 11.2% 33.9%, 20.3% 20.3%, 33.9% 11.2%);
+    }
+    25% {
+        clip-path: polygon(50.0% 2.0%, 67.0% 9.1%, 76.7% 23.3%, 83.7% 36.0%, 92.0% 50.0%, 93.9% 68.2%, 82.7% 82.7%, 65.2% 86.7%, 50.0% 86.0%, 34.8% 86.7%, 17.3% 82.7%, 6.1% 68.2%, 8.0% 50.0%, 16.3% 36.0%, 23.3% 23.3%, 33.0% 9.1%);
+    }
+    50% {
+        clip-path: polygon(50.0% 2.0%, 58.4% 29.7%, 83.9% 16.1%, 70.3% 41.6%, 98.0% 50.0%, 70.3% 58.4%, 83.9% 83.9%, 58.4% 70.3%, 50.0% 98.0%, 41.6% 70.3%, 16.1% 83.9%, 29.7% 58.4%, 2.0% 50.0%, 29.7% 41.6%, 16.1% 16.1%, 41.6% 29.7%);
+    }
+    75% {
+        clip-path: polygon(50.0% 28.0%, 68.4% 5.7%, 65.6% 34.4%, 94.3% 31.6%, 72.0% 50.0%, 94.3% 68.4%, 65.6% 65.6%, 68.4% 94.3%, 50.0% 72.0%, 31.6% 94.3%, 34.4% 65.6%, 5.7% 68.4%, 28.0% 50.0%, 5.7% 31.6%, 34.4% 34.4%, 31.6% 5.7%);
+    }
+}
+
+@keyframes colorShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
 .status-badge {
     display: inline-flex; align-items: center; gap: 0.6rem;
